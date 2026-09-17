@@ -54,8 +54,8 @@ function AuthForm() {
       {/* Background glow */}
       <div style={{
         position: 'fixed', top: '20%', left: '50%', transform: 'translateX(-50%)',
-        width: 500, height: 500, borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(255,107,53,0.05) 0%, transparent 70%)',
+        width: 550, height: 550, borderRadius: '50%',
+        background: 'radial-gradient(circle, rgba(200,255,0,0.14) 0%, transparent 70%)',
         pointerEvents: 'none',
       }} />
 

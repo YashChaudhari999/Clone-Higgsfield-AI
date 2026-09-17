@@ -102,7 +102,7 @@ export const MEDIA_DATA = {
       id: 'vfx-7',
       title: 'Eyes In',
       category: 'Macro Zoom',
-      image: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=800&q=80',
+      image: '/images/macro_eye_galaxy.png',
       prompt: 'Infinite macro zoom into pupil revealing reflection of exploding galaxy, prismatic light refractions',
       model: 'GPT Image 2'
     },
@@ -267,7 +267,7 @@ export const MEDIA_DATA = {
       id: 'cp-6',
       title: 'ONEIRIC',
       creator: '@dream_weaver',
-      image: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=800&q=80',
+      image: 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=800&q=80',
       likes: 18900,
       badge: 'PUBLIC',
       prompt: 'Surreal floating crystal island above cloud layer with glowing rivers, pastel twilight atmosphere',
@@ -315,7 +315,7 @@ export const MEDIA_DATA = {
       id: 'gpt-3',
       title: 'Editorial Poster Art',
       subtitle: 'High contrast typography integrated seamlessly into character art',
-      image: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=800&q=80',
+      image: 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=800&q=80',
       tag: 'POSTER ART'
     },
     {

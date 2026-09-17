@@ -83,7 +83,7 @@ export default function ProjectModal({ item, onClose }: ProjectModalProps) {
           justifyContent: 'center',
           overflow: 'hidden',
           borderTopLeftRadius: 24,
-          borderBottomLeftRadius: 24,
+          borderTopRightRadius: 24,
         }}>
           <img
             src={item.image}

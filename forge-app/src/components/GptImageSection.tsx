@@ -2,9 +2,13 @@
 
 import SectionHeader from './SectionHeader';
 import { MEDIA_DATA } from '@/lib/media';
-import { Sparkles, Image as ImageIcon, Type } from 'lucide-react';
+import { Type } from 'lucide-react';
 
-export default function GptImageSection() {
+interface GptImageSectionProps {
+  onCardClick?: (item: any) => void;
+}
+
+export default function GptImageSection({ onCardClick }: GptImageSectionProps) {
   const images = MEDIA_DATA.gptImages;
 
   return (
@@ -21,92 +25,88 @@ export default function GptImageSection() {
         gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
         gap: '1.25rem',
       }}>
-        {images.map((item) => (
-          <div
-            key={item.id}
-            className="card-glass img-zoom-container"
-            style={{
-              position: 'relative',
-              borderRadius: 18,
-              overflow: 'hidden',
-              height: '360px',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'flex-end',
-            }}
-          >
-            <img
-              src={item.image}
-              alt={item.title}
+        {images.map((item, idx) => {
+          const heights = ['380px', '320px', '360px', '330px'];
+          const cardHeight = heights[idx % heights.length];
+
+          return (
+            <div
+              key={item.id}
+              className="card-glass img-zoom-container"
+              onClick={() => onCardClick?.(item)}
               style={{
+                position: 'relative',
+                borderRadius: 18,
+                overflow: 'hidden',
+                height: cardHeight,
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'flex-end',
+                cursor: 'pointer',
+              }}
+            >
+              <img
+                src={item.image}
+                alt={item.title}
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                }}
+              />
+
+              <div style={{
                 position: 'absolute',
                 inset: 0,
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-              }}
-            />
+                background: 'linear-gradient(180deg, rgba(9,11,12,0.05) 0%, rgba(9,11,12,0.45) 50%, rgba(9,11,12,0.96) 100%)',
+                zIndex: 1,
+              }} />
 
-            <div style={{
-              position: 'absolute',
-              inset: 0,
-              background: 'linear-gradient(180deg, transparent 20%, rgba(11,13,14,0.7) 60%, rgba(11,13,14,0.96) 100%)',
-              zIndex: 1,
-            }} />
-
-            {/* Tag Badge */}
-            <div style={{
-              position: 'absolute',
-              top: '1rem',
-              left: '1rem',
-              zIndex: 2,
-            }}>
-              <span style={{
-                background: 'rgba(18, 21, 23, 0.9)',
-                backdropFilter: 'blur(8px)',
-                border: '1px solid var(--border-lime)',
-                color: 'var(--accent-lime)',
-                fontSize: '0.65rem',
-                fontWeight: 800,
-                padding: '0.2rem 0.6rem',
-                borderRadius: 9999,
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.3rem',
+              {/* Tag Badge */}
+              <div style={{
+                position: 'absolute',
+                top: '1rem',
+                left: '1rem',
+                zIndex: 2,
               }}>
-                <Type size={11} /> {item.tag}
-              </span>
+                <span className="badge-glass-lime">
+                  <Type size={11} /> {item.tag}
+                </span>
+              </div>
+
+              {/* Bottom Content */}
+              <div style={{
+                position: 'relative',
+                zIndex: 2,
+                padding: '1.5rem',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.4rem',
+              }}>
+                <h3 className="heading-display" style={{
+                  fontSize: '1.25rem',
+                  color: '#ffffff',
+                  margin: 0,
+                }}>
+                  {item.title}
+                </h3>
+
+                <p style={{
+                  fontSize: '0.825rem',
+                  color: 'var(--text-secondary)',
+                  margin: 0,
+                  lineHeight: 1.45,
+                }}>
+                  {item.subtitle}
+                </p>
+              </div>
             </div>
-
-            {/* Bottom Content */}
-            <div style={{
-              position: 'relative',
-              zIndex: 2,
-              padding: '1.5rem',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '0.4rem',
-            }}>
-              <h3 className="heading-display" style={{
-                fontSize: '1.25rem',
-                color: '#ffffff',
-                margin: 0,
-              }}>
-                {item.title}
-              </h3>
-
-              <p style={{
-                fontSize: '0.825rem',
-                color: 'var(--text-secondary)',
-                margin: 0,
-                lineHeight: 1.45,
-              }}>
-                {item.subtitle}
-              </p>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </section>
   );
 }
+

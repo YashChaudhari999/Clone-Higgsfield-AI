@@ -120,11 +120,19 @@ function CreateWorkspace() {
     await new Promise(r => setTimeout(r, 600));
 
     // Complete
+    const sampleImages = [
+      'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1614741118887-7a4ee193a5fa?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1200&q=80',
+    ];
+    const resultImg = sampleImages[Math.floor(Math.random() * sampleImages.length)];
+
     const completed: Generation = {
       ...newGen,
       status: 'completed',
       completedAt: new Date().toISOString(),
-      resultUrl: `https://source.unsplash.com/1920x1080/?cinematic,ai,${encodeURIComponent(prompt.split(' ').slice(0, 3).join(','))}`,
+      resultUrl: resultImg,
     };
     setCurrentGeneration(completed);
     saveGeneration(completed);
@@ -485,8 +493,8 @@ function CreateWorkspace() {
               {/* Spinning ring */}
               <div style={{
                 width: 60, height: 60, borderRadius: '50%',
-                border: '2px solid rgba(255,107,53,0.2)',
-                borderTopColor: 'var(--accent)',
+                border: '2px solid rgba(200,255,0,0.2)',
+                borderTopColor: 'var(--accent-lime)',
                 position: 'relative', zIndex: 1,
               }} className="animate-spin-slow" />
             </div>
@@ -497,11 +505,11 @@ function CreateWorkspace() {
                 <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 500 }}>
                   {stepLabel || 'Starting...'}
                 </span>
-                <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--accent)' }}>{progress}%</span>
+                <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--accent-lime)' }}>{progress}%</span>
               </div>
               <div style={{ height: 4, background: 'var(--bg-elevated)', borderRadius: 2, overflow: 'hidden' }}>
                 <div style={{
-                  height: '100%', background: 'var(--accent)', borderRadius: 2,
+                  height: '100%', background: 'var(--accent-lime)', borderRadius: 2,
                   width: `${progress}%`, transition: 'width 0.6s ease',
                 }} />
               </div>
@@ -527,11 +535,11 @@ function CreateWorkspace() {
                   {copied ? <CheckCircle size={14} /> : <Copy size={14} />}
                   {copied ? 'Copied!' : 'Copy prompt'}
                 </button>
-                <button className="btn-secondary" onClick={handleRegenerate} style={{ fontSize: '0.8rem' }}>
+                <button className="btn-dark" onClick={handleRegenerate} style={{ fontSize: '0.8rem' }}>
                   <RotateCcw size={14} /> Regenerate
                 </button>
                 <button
-                  className="btn-secondary"
+                  className="btn-dark"
                   style={{ fontSize: '0.8rem' }}
                   onClick={() => {
                     const a = document.createElement('a');
@@ -545,7 +553,7 @@ function CreateWorkspace() {
                 </button>
                 <button
                   id="save-btn"
-                  className={saved ? 'btn-secondary' : 'btn-primary'}
+                  className={saved ? 'btn-dark' : 'btn-lime'}
                   onClick={handleSave}
                   style={{ fontSize: '0.8rem' }}
                 >
@@ -629,7 +637,7 @@ function CreateWorkspace() {
             </div>
 
             {/* New generation */}
-            <button className="btn-secondary" onClick={handleNewGeneration} style={{ width: '100%', justifyContent: 'center' }}>
+            <button className="btn-dark" onClick={handleNewGeneration} style={{ width: '100%', justifyContent: 'center' }}>
               <X size={15} /> Start new generation
             </button>
           </div>

@@ -2,15 +2,15 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { User, Bell, Shield, CreditCard, Palette, LogOut, Save, CheckCircle } from 'lucide-react';
+import { User, Bell, Shield, CreditCard, Palette, LogOut, Save, CheckCircle, Sparkles, Check, ChevronRight, Zap } from 'lucide-react';
 import { getAuth, setAuth, signOut } from '@/lib/storage';
 import { User as UserType } from '@/lib/types';
 
 const TABS = [
-  { id: 'profile', label: 'Profile', icon: User },
-  { id: 'appearance', label: 'Appearance', icon: Palette },
-  { id: 'notifications', label: 'Notifications', icon: Bell },
-  { id: 'account', label: 'Account & Plan', icon: CreditCard },
+  { id: 'profile', label: 'Profile', icon: User, desc: 'Personal details & bio' },
+  { id: 'appearance', label: 'Appearance', icon: Palette, desc: 'Theme & interface' },
+  { id: 'notifications', label: 'Notifications', icon: Bell, desc: 'Alerts & email preferences' },
+  { id: 'account', label: 'Account & Plan', icon: CreditCard, desc: 'Subscription & credits' },
 ];
 
 export default function SettingsPage() {
@@ -40,127 +40,445 @@ export default function SettingsPage() {
     setTimeout(() => setSaved(false), 2000);
   };
 
-  return (
-    <div style={{ padding: '2rem', maxWidth: 900, margin: '0 auto' }}>
-      <h1 style={{ fontFamily: 'Space Grotesk', fontSize: '1.625rem', fontWeight: 700, marginBottom: '2rem' }}>Settings</h1>
+  const handleSignOut = () => {
+    signOut();
+    router.push('/');
+  };
 
-      <div style={{ display: 'flex', gap: '2rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
-        {/* Tab list */}
-        <div style={{ width: 200, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-          {TABS.map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`sidebar-nav-item ${activeTab === tab.id ? 'active' : ''}`}
-              style={{ justifyContent: 'flex-start' }}
-            >
-              <tab.icon size={16} />
-              {tab.label}
-            </button>
-          ))}
-          <div style={{ height: 1, background: 'var(--border-subtle)', margin: '0.5rem 0' }} />
-          <button
-            onClick={() => { signOut(); router.push('/'); }}
-            className="sidebar-nav-item"
-            style={{ color: 'var(--error)' }}
-          >
-            <LogOut size={16} /> Sign Out
-          </button>
+  return (
+    <div style={{ padding: 'clamp(1.5rem, 4vw, 3rem) 1.5rem', maxWidth: 1040, margin: '0 auto' }}>
+      {/* Header Section */}
+      <div style={{ marginBottom: '2.5rem' }}>
+        {/* Category Pill */}
+        <div style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '0.45rem',
+          background: 'rgba(200, 255, 0, 0.12)',
+          border: '1px solid var(--border-lime)',
+          padding: '0.28rem 0.75rem',
+          borderRadius: 9999,
+          marginBottom: '0.85rem',
+          boxShadow: '0 0 16px rgba(200, 255, 0, 0.15)',
+        }}>
+          <Sparkles size={12} color="var(--accent-lime)" />
+          <span style={{ fontSize: '0.7rem', color: 'var(--accent-lime)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            PREFERENCES & ACCOUNT
+          </span>
         </div>
 
-        {/* Tab content */}
-        <div style={{ flex: 1, minWidth: 300 }}>
+        <h1 className="heading-display" style={{
+          fontSize: 'clamp(2rem, 4vw, 3rem)',
+          color: '#ffffff',
+          lineHeight: 1.05,
+          margin: '0 0 0.6rem 0',
+          letterSpacing: '-0.02em',
+        }}>
+          SETTINGS & <span style={{ color: 'var(--accent-lime)', textShadow: '0 0 20px rgba(200,255,0,0.3)' }}>PROFILE</span>
+        </h1>
+
+        <p style={{ fontSize: '0.925rem', color: 'var(--text-secondary)', margin: 0, maxWidth: '600px' }}>
+          Manage your personal studio profile, system appearance, generation notifications, and credit subscription plan.
+        </p>
+      </div>
+
+      {/* Main Settings Layout */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(12, 1fr)',
+        gap: '2rem',
+        alignItems: 'flex-start',
+      }}>
+        {/* Sidebar Nav Tabs (4 Cols on Desktop) */}
+        <div style={{ gridColumn: 'span 12', display: 'flex', flexDirection: 'column', gap: '0.75rem' }} className="lg:grid-col-span-4">
+          <div style={{
+            background: 'var(--bg-surface)',
+            border: '1px solid var(--border-default)',
+            borderRadius: 20,
+            padding: '0.875rem',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.35rem',
+            boxShadow: '0 16px 32px rgba(0,0,0,0.5)',
+          }}>
+            {TABS.map((tab) => {
+              const isActive = activeTab === tab.id;
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '0.85rem 1rem',
+                    borderRadius: 14,
+                    background: isActive ? 'var(--accent-lime-dim)' : 'transparent',
+                    border: isActive ? '1px solid var(--border-lime)' : '1px solid transparent',
+                    color: isActive ? 'var(--accent-lime)' : 'var(--text-secondary)',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                    width: '100%',
+                    textAlign: 'left',
+                  }}
+                  className="hover:text-white hover:bg-white/5"
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <div style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: 10,
+                      background: isActive ? 'var(--accent-lime)' : 'rgba(255,255,255,0.06)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: isActive ? '#000000' : 'var(--text-secondary)',
+                      flexShrink: 0,
+                      transition: 'background 0.2s, color 0.2s',
+                    }}>
+                      <Icon size={16} color={isActive ? '#000000' : 'currentColor'} />
+                    </div>
+                    <div>
+                      <span style={{ fontSize: '0.875rem', fontWeight: isActive ? 800 : 600, display: 'block', color: isActive ? '#ffffff' : 'inherit' }}>
+                        {tab.label}
+                      </span>
+                      <span style={{ fontSize: '0.72rem', color: isActive ? 'rgba(255,255,255,0.7)' : 'var(--text-muted)', display: 'block' }}>
+                        {tab.desc}
+                      </span>
+                    </div>
+                  </div>
+                  <ChevronRight size={15} color={isActive ? 'var(--accent-lime)' : 'var(--text-muted)'} style={{ opacity: isActive ? 1 : 0.4 }} />
+                </button>
+              );
+            })}
+
+            <div style={{ height: 1, background: 'var(--border-subtle)', margin: '0.5rem 0' }} />
+
+            {/* Sign Out Action Button */}
+            <button
+              onClick={handleSignOut}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.75rem',
+                padding: '0.85rem 1rem',
+                borderRadius: 14,
+                background: 'rgba(239, 68, 68, 0.08)',
+                border: '1px solid rgba(239, 68, 68, 0.2)',
+                color: '#ef4444',
+                fontSize: '0.875rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                width: '100%',
+              }}
+              className="hover:bg-red-500/15"
+            >
+              <LogOut size={16} color="#ef4444" />
+              <span>Sign Out of Forgefield</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Tab Content Panel (8 Cols on Desktop) */}
+        <div style={{ gridColumn: 'span 12' }} className="lg:grid-col-span-8">
+          {/* PROFILE TAB */}
           {activeTab === 'profile' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-              <h2 style={{ fontFamily: 'Space Grotesk', fontSize: '1.125rem', fontWeight: 700 }}>Profile</h2>
+            <div style={{
+              background: 'var(--bg-surface)',
+              border: '1px solid var(--border-default)',
+              borderRadius: 22,
+              padding: 'clamp(1.5rem, 3vw, 2.25rem)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1.75rem',
+              boxShadow: '0 20px 40px rgba(0,0,0,0.6)',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '1rem' }}>
+                <div>
+                  <h2 className="heading-display" style={{ fontSize: '1.35rem', color: '#ffffff', margin: '0 0 0.2rem 0' }}>
+                    STUDIO PROFILE
+                  </h2>
+                  <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: 0 }}>
+                    Your public creator identity across Forgefield community projects.
+                  </p>
+                </div>
+                <span className="badge-glass-lime">PUBLIC PROFILE</span>
+              </div>
 
-              {/* Avatar */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+              {/* Avatar & Header Identity */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '1.5rem',
+                background: 'var(--bg-elevated)',
+                border: '1px solid var(--border-subtle)',
+                borderRadius: 18,
+                padding: '1.25rem',
+              }}>
                 <div style={{
-                  width: 64, height: 64, borderRadius: '50%',
-                  background: 'var(--accent-lime)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '1.75rem', fontWeight: 800, color: '#000000',
-                  boxShadow: '0 0 16px rgba(200, 255, 0, 0.3)',
+                  width: 72,
+                  height: 72,
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, var(--accent-lime) 0%, #a2d400 100%)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '2rem',
+                  fontWeight: 800,
+                  color: '#000000',
+                  boxShadow: '0 0 24px rgba(200, 255, 0, 0.35)',
+                  flexShrink: 0,
+                  fontFamily: 'Space Grotesk',
                 }}>
-                  {user?.name.charAt(0).toUpperCase()}
+                  {user?.name?.charAt(0).toUpperCase() || 'F'}
                 </div>
-                <div>
-                  <p style={{ fontWeight: 700, fontSize: '1.1rem', marginBottom: '0.25rem' }}>{user?.name}</p>
-                  <p style={{ fontSize: '0.8rem', color: 'var(--accent-lime)', fontWeight: 600 }}>{user?.plan === 'pro' ? 'Pro Plan' : 'Free Plan'}</p>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', flex: 1 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+                    <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#ffffff', margin: 0 }}>
+                      {user?.name || 'Creator'}
+                    </h3>
+                    <span className="badge-lime">
+                      <Zap size={10} /> {user?.plan === 'pro' ? 'PRO STUDIO' : 'FREE TIER'}
+                    </span>
+                  </div>
+                  <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: 0 }}>
+                    {user?.email || 'creator@forgefield.ai'}
+                  </p>
                 </div>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {/* Form Input Fields */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                 <div>
-                  <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600, display: 'block', marginBottom: '0.375rem' }}>Display Name</label>
-                  <input className="input-base" value={name} onChange={e => setName(e.target.value)} />
+                  <label style={{
+                    fontSize: '0.75rem',
+                    color: 'var(--text-muted)',
+                    fontWeight: 700,
+                    display: 'block',
+                    marginBottom: '0.45rem',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.04em',
+                  }}>
+                    Display Name
+                  </label>
+                  <input
+                    className="input-base"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Enter creator handle or full name"
+                  />
+                  <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.35rem', display: 'block' }}>
+                    This name will appear on your published community prompts and studio projects.
+                  </span>
                 </div>
+
                 <div>
-                  <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600, display: 'block', marginBottom: '0.375rem' }}>Email</label>
-                  <input className="input-base" type="email" value={email} onChange={e => setEmail(e.target.value)} />
+                  <label style={{
+                    fontSize: '0.75rem',
+                    color: 'var(--text-muted)',
+                    fontWeight: 700,
+                    display: 'block',
+                    marginBottom: '0.45rem',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.04em',
+                  }}>
+                    Account Email Address
+                  </label>
+                  <input
+                    className="input-base"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="name@company.com"
+                  />
+                  <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.35rem', display: 'block' }}>
+                    Used for generation notifications, API authentication keys, and password recovery.
+                  </span>
                 </div>
               </div>
 
-              <button className="btn-lime" onClick={handleSaveProfile} style={{ alignSelf: 'flex-start' }}>
-                {saved ? <><CheckCircle size={16} /> Saved!</> : <><Save size={16} /> Save Changes</>}
-              </button>
+              {/* Save Button */}
+              <div style={{ paddingTop: '0.5rem' }}>
+                <button
+                  className="btn-lime"
+                  onClick={handleSaveProfile}
+                  style={{ padding: '0.75rem 1.85rem', fontSize: '0.85rem' }}
+                >
+                  {saved ? (
+                    <>
+                      <Check size={16} /> Changes Saved!
+                    </>
+                  ) : (
+                    <>
+                      <Save size={16} /> Save Profile Changes
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           )}
 
+          {/* APPEARANCE TAB */}
           {activeTab === 'appearance' && (
-            <div>
-              <h2 className="heading-display" style={{ fontSize: '1.25rem', color: '#ffffff', marginBottom: '1.25rem' }}>APPEARANCE</h2>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', marginBottom: '1.25rem' }}>Forgefield uses an AI-native dark theme optimized for high contrast creative production.</p>
-              <div style={{ display: 'flex', gap: '0.75rem' }}>
-                {['Dark', 'Light (coming soon)', 'System'].map(theme => (
+            <div style={{
+              background: 'var(--bg-surface)',
+              border: '1px solid var(--border-default)',
+              borderRadius: 22,
+              padding: 'clamp(1.5rem, 3vw, 2.25rem)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1.75rem',
+              boxShadow: '0 20px 40px rgba(0,0,0,0.6)',
+            }}>
+              <div style={{ borderBottom: '1px solid var(--border-subtle)', paddingBottom: '1rem' }}>
+                <h2 className="heading-display" style={{ fontSize: '1.35rem', color: '#ffffff', margin: '0 0 0.2rem 0' }}>
+                  SYSTEM APPEARANCE
+                </h2>
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: 0 }}>
+                  Customize interface themes and high-contrast creative layout modes.
+                </p>
+              </div>
+
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+                gap: '1rem',
+              }}>
+                {[
+                  { name: 'Dark Mode', tag: 'ACTIVE DEFAULT', active: true, desc: '#090B0C + Neon Lime (#C8FF00)' },
+                  { name: 'Light Mode', tag: 'COMING SOON', active: false, desc: 'High-contrast studio day mode' },
+                  { name: 'System Preset', tag: 'AUTO MATCH', active: false, desc: 'Syncs with OS preferences' },
+                ].map((item) => (
                   <div
-                    key={theme}
+                    key={item.name}
                     style={{
-                      padding: '1rem', borderRadius: 10, width: 120, textAlign: 'center', cursor: theme === 'Dark' ? 'pointer' : 'not-allowed',
-                      border: `1px solid ${theme === 'Dark' ? 'var(--accent-lime)' : 'var(--border-subtle)'}`,
-                      background: theme === 'Dark' ? 'var(--accent-lime-dim)' : 'var(--bg-elevated)',
-                      opacity: theme !== 'Dark' ? 0.5 : 1,
+                      padding: '1.25rem',
+                      borderRadius: 16,
+                      background: item.active ? 'var(--accent-lime-dim)' : 'var(--bg-elevated)',
+                      border: item.active ? '1px solid var(--border-lime)' : '1px solid var(--border-subtle)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '0.75rem',
+                      opacity: item.active ? 1 : 0.55,
+                      cursor: item.active ? 'default' : 'not-allowed',
                     }}
                   >
-                    <div style={{ width: 36, height: 24, borderRadius: 6, background: theme === 'Dark' ? '#0b0d0e' : '#fff', border: '1px solid var(--border-default)', margin: '0 auto 0.5rem' }} />
-                    <p style={{ fontSize: '0.75rem', fontWeight: 700, color: theme === 'Dark' ? 'var(--accent-lime)' : 'var(--text-secondary)' }}>{theme.split(' ')[0]}</p>
+                    <div style={{
+                      height: 70,
+                      borderRadius: 10,
+                      background: item.name === 'Dark Mode' ? '#090B0C' : item.name === 'Light Mode' ? '#ffffff' : '#151819',
+                      border: '1px solid var(--border-default)',
+                      padding: '0.5rem',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                    }}>
+                      <div style={{ display: 'flex', gap: '0.3rem' }}>
+                        <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent-lime)' }} />
+                        <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'rgba(255,255,255,0.2)' }} />
+                      </div>
+                      <div style={{ height: 4, width: '60%', background: 'var(--accent-lime)', borderRadius: 2 }} />
+                    </div>
+
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.2rem' }}>
+                        <span style={{ fontSize: '0.875rem', fontWeight: 800, color: item.active ? 'var(--accent-lime)' : '#ffffff' }}>
+                          {item.name}
+                        </span>
+                      </div>
+                      <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>
+                        {item.desc}
+                      </span>
+                    </div>
+
+                    <div>
+                      <span className={item.active ? 'badge-glass-lime' : 'badge-glass'} style={{ fontSize: '0.62rem' }}>
+                        {item.tag}
+                      </span>
+                    </div>
                   </div>
                 ))}
               </div>
             </div>
           )}
 
+          {/* NOTIFICATIONS TAB */}
           {activeTab === 'notifications' && (
-            <div>
-              <h2 className="heading-display" style={{ fontSize: '1.25rem', color: '#ffffff', marginBottom: '1.25rem' }}>NOTIFICATIONS</h2>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
+            <div style={{
+              background: 'var(--bg-surface)',
+              border: '1px solid var(--border-default)',
+              borderRadius: 22,
+              padding: 'clamp(1.5rem, 3vw, 2.25rem)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1.75rem',
+              boxShadow: '0 20px 40px rgba(0,0,0,0.6)',
+            }}>
+              <div style={{ borderBottom: '1px solid var(--border-subtle)', paddingBottom: '1rem' }}>
+                <h2 className="heading-display" style={{ fontSize: '1.35rem', color: '#ffffff', margin: '0 0 0.2rem 0' }}>
+                  NOTIFICATION PREFERENCES
+                </h2>
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: 0 }}>
+                  Control realtime generation alerts, model releases, and community highlights.
+                </p>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 {[
-                  { key: 'generations', label: 'Generation complete', desc: 'Notify when a generation finishes' },
-                  { key: 'updates', label: 'Product updates', desc: 'New features and model releases' },
-                  { key: 'marketing', label: 'Tips & community', desc: 'Creative tips and community highlights' },
-                ].map(item => (
-                  <div key={item.key} style={{
-                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                    padding: '1rem', background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: 10,
-                  }}>
+                  { key: 'generations', label: 'Inference & Generation Completion', desc: 'Get notified when 4K video render pipelines finish' },
+                  { key: 'updates', label: 'Model Releases & API Updates', desc: 'Alerts for new Seedance 2.5, Wan, and Kling model drops' },
+                  { key: 'marketing', label: 'Community Highlights & Tips', desc: 'Weekly trending prompts, tutorials, and workflow guides' },
+                ].map((item) => (
+                  <div
+                    key={item.key}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '1.25rem',
+                      background: 'var(--bg-elevated)',
+                      border: '1px solid var(--border-subtle)',
+                      borderRadius: 16,
+                      gap: '1rem',
+                    }}
+                  >
                     <div>
-                      <p style={{ fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.25rem' }}>{item.label}</p>
-                      <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{item.desc}</p>
+                      <p style={{ fontSize: '0.9rem', fontWeight: 700, color: '#ffffff', margin: '0 0 0.2rem 0' }}>
+                        {item.label}
+                      </p>
+                      <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', margin: 0 }}>
+                        {item.desc}
+                      </p>
                     </div>
+
                     <button
-                      onClick={() => setNotifs(n => ({ ...n, [item.key]: !n[item.key as keyof typeof n] }))}
+                      onClick={() => setNotifs((n) => ({ ...n, [item.key]: !n[item.key as keyof typeof n] }))}
                       style={{
-                        width: 44, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer',
-                        background: notifs[item.key as keyof typeof notifs] ? 'var(--accent-lime)' : 'var(--bg-overlay)',
-                        position: 'relative', transition: 'background 0.2s', flexShrink: 0,
+                        width: 48,
+                        height: 26,
+                        borderRadius: 9999,
+                        border: 'none',
+                        cursor: 'pointer',
+                        background: notifs[item.key as keyof typeof notifs] ? 'var(--accent-lime)' : 'rgba(255, 255, 255, 0.1)',
+                        position: 'relative',
+                        transition: 'background 0.2s ease',
+                        flexShrink: 0,
+                        boxShadow: notifs[item.key as keyof typeof notifs] ? '0 0 12px rgba(200, 255, 0, 0.35)' : 'none',
                       }}
+                      aria-label={`Toggle ${item.label}`}
                     >
                       <div style={{
-                        width: 18, height: 18, borderRadius: '50%', background: notifs[item.key as keyof typeof notifs] ? '#000000' : '#ffffff',
-                        position: 'absolute', top: 3,
-                        left: notifs[item.key as keyof typeof notifs] ? 23 : 3,
-                        transition: 'left 0.2s',
+                        width: 20,
+                        height: 20,
+                        borderRadius: '50%',
+                        background: notifs[item.key as keyof typeof notifs] ? '#000000' : '#ffffff',
+                        position: 'absolute',
+                        top: 3,
+                        left: notifs[item.key as keyof typeof notifs] ? 25 : 3,
+                        transition: 'left 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
                       }} />
                     </button>
                   </div>
@@ -169,28 +487,85 @@ export default function SettingsPage() {
             </div>
           )}
 
+          {/* ACCOUNT & PLAN TAB */}
           {activeTab === 'account' && (
-            <div>
-              <h2 className="heading-display" style={{ fontSize: '1.25rem', color: '#ffffff', marginBottom: '1.25rem' }}>ACCOUNT & PLAN</h2>
-              <div style={{
-                padding: '1.5rem', borderRadius: 16, marginBottom: '1.25rem',
-                background: 'linear-gradient(135deg, rgba(200,255,0,0.12) 0%, rgba(200,255,0,0.03) 100%)',
-                border: '1px solid var(--border-lime)',
-              }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-                  <span style={{ fontWeight: 800, fontFamily: 'Space Grotesk', fontSize: '1.1rem' }}>Pro Plan</span>
-                  <span className="nav-lime-pill">ACTIVE</span>
-                </div>
-                <div style={{ height: 4, background: 'rgba(0,0,0,0.4)', borderRadius: 2, marginBottom: '0.625rem', overflow: 'hidden' }}>
-                  <div style={{ height: '100%', width: `${Math.round((1 - (user?.creditsUsed || 0) / (user?.creditsTotal || 200)) * 100)}%`, background: 'var(--accent-lime)', borderRadius: 2 }} />
-                </div>
-                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                  {(user?.creditsTotal || 200) - (user?.creditsUsed || 0)} of {user?.creditsTotal || 200} credits remaining · Resets in 18 days
+            <div style={{
+              background: 'var(--bg-surface)',
+              border: '1px solid var(--border-default)',
+              borderRadius: 22,
+              padding: 'clamp(1.5rem, 3vw, 2.25rem)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1.75rem',
+              boxShadow: '0 20px 40px rgba(0,0,0,0.6)',
+            }}>
+              <div style={{ borderBottom: '1px solid var(--border-subtle)', paddingBottom: '1rem' }}>
+                <h2 className="heading-display" style={{ fontSize: '1.35rem', color: '#ffffff', margin: '0 0 0.2rem 0' }}>
+                  SUBSCRIPTION & CREDITS
+                </h2>
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: 0 }}>
+                  Manage credit quotas, billing cycles, and compute tier upgrades.
                 </p>
               </div>
-              <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-                <button className="btn-lime">Upgrade to Studio</button>
-                <button className="btn-dark">Manage subscription</button>
+
+              {/* Active Plan Card Banner */}
+              <div style={{
+                padding: '1.75rem',
+                borderRadius: 20,
+                background: 'linear-gradient(135deg, rgba(200,255,0,0.14) 0%, rgba(200,255,0,0.02) 100%)',
+                border: '1px solid var(--border-lime)',
+                boxShadow: '0 0 32px rgba(200, 255, 0, 0.1)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1.25rem',
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <span className="badge-lime" style={{ marginBottom: '0.4rem' }}>
+                      <Zap size={10} /> CURRENT ACTIVE TIER
+                    </span>
+                    <h3 className="heading-display" style={{ fontSize: '1.6rem', color: '#ffffff', margin: 0 }}>
+                      PRO STUDIO PLAN
+                    </h3>
+                  </div>
+                  <span className="badge-glass-lime" style={{ fontSize: '0.75rem', padding: '0.35rem 0.85rem' }}>
+                    $49 / MONTH
+                  </span>
+                </div>
+
+                {/* Credit Usage Bar */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.825rem' }}>
+                    <span style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>Inference Compute Credits</span>
+                    <span style={{ fontWeight: 800, color: 'var(--accent-lime)' }}>
+                      {(user?.creditsTotal || 200) - (user?.creditsUsed || 0)} / {user?.creditsTotal || 200} CREDITS REMAINING
+                    </span>
+                  </div>
+
+                  <div style={{ height: 8, background: 'rgba(0,0,0,0.5)', borderRadius: 9999, overflow: 'hidden', border: '1px solid var(--border-subtle)' }}>
+                    <div style={{
+                      height: '100%',
+                      width: `${Math.round((1 - (user?.creditsUsed || 0) / (user?.creditsTotal || 200)) * 100)}%`,
+                      background: 'linear-gradient(90deg, var(--accent-lime) 0%, #b8eb00 100%)',
+                      borderRadius: 9999,
+                      boxShadow: '0 0 12px var(--accent-lime)',
+                    }} />
+                  </div>
+                </div>
+
+                <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', margin: 0 }}>
+                  Credit allocation resets on the 1st of every month. Unlimited draft exports enabled.
+                </p>
+              </div>
+
+              {/* Upgrade CTAs */}
+              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                <button className="btn-lime" style={{ padding: '0.75rem 1.75rem' }}>
+                  <Zap size={16} /> Upgrade to Enterprise Supercomputer
+                </button>
+                <button className="btn-dark" style={{ padding: '0.75rem 1.5rem' }}>
+                  Manage Payment Method
+                </button>
               </div>
             </div>
           )}
@@ -199,3 +574,4 @@ export default function SettingsPage() {
     </div>
   );
 }
+

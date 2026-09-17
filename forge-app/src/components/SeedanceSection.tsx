@@ -2,9 +2,13 @@
 
 import SectionHeader from './SectionHeader';
 import { MEDIA_DATA } from '@/lib/media';
-import { Play, Sparkles } from 'lucide-react';
+import { Play } from 'lucide-react';
 
-export default function SeedanceSection() {
+interface SeedanceSectionProps {
+  onCardClick?: (item: any) => void;
+}
+
+export default function SeedanceSection({ onCardClick }: SeedanceSectionProps) {
   const items = MEDIA_DATA.seedanceGrid;
   const heroItem = items[0];
   const rightItems = items.slice(1);
@@ -27,6 +31,7 @@ export default function SeedanceSection() {
         {/* Left Column: Dominant Vertical Hero Card */}
         <div
           className="card-glass img-zoom-container"
+          onClick={() => onCardClick?.(heroItem)}
           style={{
             minHeight: '520px',
             position: 'relative',
@@ -37,6 +42,7 @@ export default function SeedanceSection() {
             justifyContent: 'flex-end',
             padding: '2rem',
             gridColumn: 'span 1',
+            cursor: 'pointer',
           }}
         >
           <img
@@ -53,9 +59,31 @@ export default function SeedanceSection() {
           <div style={{
             position: 'absolute',
             inset: 0,
-            background: 'linear-gradient(180deg, transparent 30%, rgba(11,13,14,0.7) 60%, rgba(11,13,14,0.95) 100%)',
+            background: 'linear-gradient(180deg, transparent 30%, rgba(9,11,12,0.65) 60%, rgba(9,11,12,0.96) 100%)',
             zIndex: 1,
           }} />
+
+          {/* Floating Top Badge */}
+          <div style={{
+            position: 'absolute',
+            top: '1.25rem',
+            right: '1.25rem',
+            zIndex: 2,
+          }}>
+            <div className="hover-reveal-action" style={{
+              width: 36,
+              height: 36,
+              borderRadius: '50%',
+              background: 'rgba(9,11,12,0.75)',
+              backdropFilter: 'blur(8px)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: '1px solid var(--border-default)',
+            }}>
+              <Play size={14} color="#ffffff" fill="#ffffff" style={{ marginLeft: 1 }} />
+            </div>
+          </div>
 
           <div style={{
             position: 'relative',
@@ -65,14 +93,15 @@ export default function SeedanceSection() {
             gap: '0.625rem',
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span className="nav-lime-pill">SEEDANCE 2.5 PRO</span>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>60 FPS / 4K</span>
+              <span className="badge-glass-lime">SEEDANCE 2.5 PRO</span>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600 }}>60 FPS / 4K</span>
             </div>
 
             <h3 className="heading-display" style={{
               fontSize: '1.8rem',
               color: '#ffffff',
               margin: 0,
+              lineHeight: 1.1,
             }}>
               {heroItem.title}
             </h3>
@@ -98,6 +127,7 @@ export default function SeedanceSection() {
             <div
               key={item.id}
               className="card-glass img-zoom-container"
+              onClick={() => onCardClick?.(item)}
               style={{
                 height: '248px',
                 position: 'relative',
@@ -107,6 +137,7 @@ export default function SeedanceSection() {
                 flexDirection: 'column',
                 justifyContent: 'flex-end',
                 padding: '1.25rem',
+                cursor: 'pointer',
               }}
             >
               <img
@@ -123,7 +154,7 @@ export default function SeedanceSection() {
               <div style={{
                 position: 'absolute',
                 inset: 0,
-                background: 'linear-gradient(180deg, transparent 20%, rgba(11,13,14,0.85) 100%)',
+                background: 'linear-gradient(180deg, transparent 20%, rgba(9,11,12,0.9) 100%)',
                 zIndex: 1,
               }} />
 
@@ -158,3 +189,4 @@ export default function SeedanceSection() {
     </section>
   );
 }
+

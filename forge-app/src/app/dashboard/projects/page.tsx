@@ -110,14 +110,14 @@ export default function ProjectsPage() {
         <div style={{ display: 'flex', gap: '0.25rem', marginLeft: 'auto' }}>
           <button
             onClick={() => setViewMode('grid')}
-            className={viewMode === 'grid' ? 'btn-secondary' : 'btn-ghost'}
+            className={viewMode === 'grid' ? 'btn-dark' : 'btn-ghost'}
             style={{ padding: '0.5rem' }}
           >
             <Grid size={16} />
           </button>
           <button
             onClick={() => setViewMode('list')}
-            className={viewMode === 'list' ? 'btn-secondary' : 'btn-ghost'}
+            className={viewMode === 'list' ? 'btn-dark' : 'btn-ghost'}
             style={{ padding: '0.5rem' }}
           >
             <List size={16} />
@@ -143,7 +143,7 @@ export default function ProjectsPage() {
           </p>
           {generations.length === 0 && (
             <Link href="/dashboard/create">
-              <button className="btn-primary"><PlusSquare size={16} /> Create something</button>
+              <button className="btn-lime"><PlusSquare size={16} /> Create something</button>
             </Link>
           )}
         </div>

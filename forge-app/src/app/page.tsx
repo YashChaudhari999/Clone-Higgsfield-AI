@@ -45,78 +45,88 @@ export default function ExploreLandingPage() {
         }}
       />
 
-      {/* HERO STATEMENT BANNER */}
+      {/* HERO STATEMENT BANNER (FIRST VIEWPORT) */}
       <section style={{
         position: 'relative',
-        padding: 'clamp(3rem, 6vw, 5rem) 1.5rem 2rem',
+        padding: 'clamp(2rem, 4vw, 3.5rem) 1.5rem 1.25rem',
         textAlign: 'center',
-        maxWidth: 1200,
+        maxWidth: 1240,
         margin: '0 auto',
       }}>
-        {/* Background glow orb */}
+        {/* Ambient background glow orb */}
         <div style={{
           position: 'absolute',
-          top: '20%',
+          top: '15%',
           left: '50%',
           transform: 'translateX(-50%)',
-          width: '650px',
-          height: '650px',
-          background: 'radial-gradient(circle, rgba(200, 255, 0, 0.08) 0%, transparent 70%)',
+          width: '550px',
+          height: '550px',
+          background: 'radial-gradient(circle, rgba(200, 255, 0, 0.12) 0%, transparent 70%)',
           pointerEvents: 'none',
         }} />
 
+        {/* Micro Category Pill */}
         <div style={{
           display: 'inline-flex',
           alignItems: 'center',
-          gap: '0.5rem',
-          background: 'rgba(200, 255, 0, 0.1)',
+          gap: '0.45rem',
+          background: 'rgba(200, 255, 0, 0.12)',
           border: '1px solid var(--border-lime)',
-          padding: '0.35rem 0.85rem',
+          padding: '0.3rem 0.8rem',
           borderRadius: 9999,
-          marginBottom: '1.5rem',
+          marginBottom: '1.1rem',
+          boxShadow: '0 0 16px rgba(200, 255, 0, 0.15)',
         }}>
-          <Sparkles size={14} color="var(--accent-lime)" />
-          <span style={{ fontSize: '0.78rem', color: 'var(--accent-lime)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            THE NEXT ERA OF AI CREATIVITY
+          <Sparkles size={13} color="var(--accent-lime)" />
+          <span style={{ fontSize: '0.72rem', color: 'var(--accent-lime)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            AI-NATIVE CREATIVE ENGINE
           </span>
         </div>
 
+        {/* Scaled H1 Headline */}
         <h1 className="heading-display" style={{
-          fontSize: 'clamp(2.8rem, 6.5vw, 5.2rem)',
-          lineHeight: 1.0,
+          fontSize: 'clamp(2.4rem, 5.2vw, 4.2rem)',
+          lineHeight: 1.04,
           color: '#ffffff',
-          marginBottom: '1.25rem',
+          marginBottom: '1rem',
           letterSpacing: '-0.02em',
+          maxWidth: '1080px',
+          margin: '0 auto 1rem',
         }}>
-          EXPLORE THE WORLD'S MOST ADVANCED <span style={{ color: 'var(--accent-lime)', textShadow: '0 0 24px rgba(200,255,0,0.3)' }}>AI CREATIVE ENGINE</span>
+          EXPLORE THE WORLD&apos;S MOST ADVANCED <span style={{ color: 'var(--accent-lime)', textShadow: '0 0 24px rgba(200,255,0,0.35)' }}>AI CREATIVE ENGINE</span>
         </h1>
 
+        {/* Punchy Subtitle Paragraph */}
         <p style={{
-          fontSize: 'clamp(1rem, 2vw, 1.25rem)',
+          fontSize: 'clamp(0.95rem, 1.6vw, 1.15rem)',
           color: 'var(--text-secondary)',
-          maxWidth: '740px',
-          margin: '0 auto 2.25rem',
-          lineHeight: 1.6,
+          maxWidth: '680px',
+          margin: '0 auto 1.75rem',
+          lineHeight: 1.55,
+          fontWeight: 400,
         }}>
-          Generate cinema-grade video, reality-swapping motion, and ultra-high resolution images with sub-second temporal consistency.
+          AI-native creative platform for generating and exploring cinema-grade video, motion transfer, and 4K visual content.
         </p>
 
-        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <Link href="/dashboard/create">
-            <button className="btn-lime" style={{ padding: '0.875rem 2rem', fontSize: '0.95rem' }}>
-              <Wand2 size={18} /> Open Studio Free
+        {/* Hero CTAs */}
+        <div style={{ display: 'flex', gap: '0.875rem', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
+          <Link href="/dashboard/create" style={{ textDecoration: 'none' }}>
+            <button className="btn-lime" style={{ padding: '0.75rem 1.85rem', fontSize: '0.88rem' }}>
+              <Wand2 size={16} /> Open Studio Free
             </button>
           </Link>
-          <a href="#genjutsu">
-            <button className="btn-dark" style={{ padding: '0.875rem 1.75rem', fontSize: '0.95rem' }}>
-              <Play size={16} fill="currentColor" /> Watch Demos
+          <a href="#genjutsu" style={{ textDecoration: 'none' }}>
+            <button className="btn-dark" style={{ padding: '0.75rem 1.6rem', fontSize: '0.88rem' }}>
+              <Play size={15} fill="currentColor" /> Watch Demos
             </button>
           </a>
         </div>
       </section>
 
-      {/* 3. FEATURED CREATIVE / PRODUCT CARDS */}
-      <FeaturedGrid onCardClick={handleOpenModal} />
+      {/* 3. FEATURED CREATIVE / PRODUCT CARDS (PEEKS INTO FIRST VIEWPORT) */}
+      <div style={{ marginTop: '-0.5rem' }}>
+        <FeaturedGrid onCardClick={handleOpenModal} />
+      </div>
 
       {/* 4. VISUAL EFFECTS SECTION */}
       <VisualEffectsSection onRecreate={handleOpenModal} />
@@ -133,7 +143,7 @@ export default function ExploreLandingPage() {
       />
 
       {/* 6. SEEDANCE SECTION */}
-      <SeedanceSection />
+      <SeedanceSection onCardClick={handleOpenModal} />
 
       {/* 7. COMMUNITY / PROJECT GALLERY */}
       <CommunitySection onProjectClick={handleOpenModal} />
@@ -146,7 +156,7 @@ export default function ExploreLandingPage() {
       />
 
       {/* 9. GPT IMAGE SECTION */}
-      <GptImageSection />
+      <GptImageSection onCardClick={handleOpenModal} />
 
       {/* PRICING SECTION */}
       <PricingSection />
