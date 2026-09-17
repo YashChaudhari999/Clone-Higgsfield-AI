@@ -51,7 +51,7 @@ export default function ProjectsPage() {
           </p>
         </div>
         <Link href="/dashboard/create">
-          <button className="btn-primary">
+          <button className="btn-lime">
             <PlusSquare size={16} /> New Creation
           </button>
         </Link>
@@ -79,10 +79,10 @@ export default function ProjectsPage() {
               key={t}
               onClick={() => setTypeFilter(t)}
               style={{
-                padding: '0.5rem 0.875rem', borderRadius: 8, fontSize: '0.8rem', fontWeight: 600,
-                border: `1px solid ${typeFilter === t ? 'var(--accent)' : 'var(--border-default)'}`,
-                background: typeFilter === t ? 'var(--accent-dim)' : 'var(--bg-surface)',
-                color: typeFilter === t ? 'var(--accent)' : 'var(--text-secondary)',
+                padding: '0.5rem 0.875rem', borderRadius: 8, fontSize: '0.8rem', fontWeight: 700,
+                border: `1px solid ${typeFilter === t ? 'var(--accent-lime)' : 'var(--border-default)'}`,
+                background: typeFilter === t ? 'var(--accent-lime-dim)' : 'var(--bg-surface)',
+                color: typeFilter === t ? 'var(--accent-lime)' : 'var(--text-secondary)',
                 cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.375rem',
                 transition: 'all 0.15s',
               }}
