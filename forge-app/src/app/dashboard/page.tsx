@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { PlusSquare, Clock, Zap, TrendingUp, Film, Image as ImageIcon, ArrowRight } from 'lucide-react';
+import { PlusSquare, Clock, Zap, TrendingUp, Film, Image as ImageIcon, ArrowRight, Sparkles } from 'lucide-react';
 import { getAuth } from '@/lib/storage';
 import { getGenerations, getThumbnailStyle } from '@/lib/storage';
 import { Generation, User } from '@/lib/types';
@@ -36,11 +36,12 @@ export default function DashboardHome() {
     <div style={{ padding: '2rem', maxWidth: 1200, margin: '0 auto' }}>
       {/* Header */}
       <div style={{ marginBottom: '2rem' }}>
-        <h1 style={{ fontFamily: 'Space Grotesk', fontSize: '1.625rem', fontWeight: 700, marginBottom: '0.375rem' }}>
-          {user ? `Welcome back, ${user.name.split(' ')[0]} 👋` : 'Welcome back'}
+        <h1 className="heading-display" style={{ fontSize: '1.75rem', color: '#ffffff', marginBottom: '0.375rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          {user ? `WELCOME BACK, ${user.name.split(' ')[0].toUpperCase()}` : 'WELCOME BACK'}
+          <Sparkles size={20} color="var(--accent-lime)" />
         </h1>
         <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-          What will you create today?
+          What will you create today with Forgefield AI?
         </p>
       </div>
 
