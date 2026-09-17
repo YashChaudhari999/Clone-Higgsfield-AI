@@ -27,7 +27,7 @@ from pathlib import Path
 
 # ── Configuration ──────────────────────────────────────────────────────────────
 
-AUTHOR         = "yash"          # change to your GitHub handle
+AUTHOR         = "yash-chaudhari"  # GitHub handle
 MODEL          = "claude-sonnet-4.6-thinking"
 TOOL           = "antigravity-ide"
 PROJECT        = "cad"           # name of this repo / assignment

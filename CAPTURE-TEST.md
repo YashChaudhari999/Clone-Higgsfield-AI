@@ -60,7 +60,7 @@ For sessions where the transcript is empty at log-write time (e.g., the very fir
 ---
 session_id: 3ef9b961-7357-47d4-8cf1-ea0b1b3caf60
 date: 2026-09-17
-author: yash
+author: yash-chaudhari
 model: claude-sonnet-4.6-thinking
 tool: antigravity-ide
 project: cad
@@ -71,7 +71,7 @@ last_prompt_time: 2026-09-17T14:46:19.000Z
 
 # Session Log - 2026-09-17
 
-Session: `3ef9b961` | Project: `cad` | Author: `yash`
+Session: `3ef9b961` | Project: `cad` | Author: `yash-chaudhari`
 
 ---
 
