@@ -160,10 +160,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         alignItems: 'center', justifyContent: 'space-between', padding: '0 1rem',
       }} className="max-md:flex md:hidden" id="mobile-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <div style={{ width: 24, height: 24, background: 'var(--accent)', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Zap size={13} color="#fff" fill="#fff" />
+          <div style={{ width: 24, height: 24, background: 'var(--accent-lime)', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Zap size={13} color="#000000" fill="#000000" />
           </div>
-          <span style={{ fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: '1rem' }}>Forge</span>
+          <span style={{ fontFamily: 'Space Grotesk', fontWeight: 800, fontSize: '1rem', color: '#ffffff' }}>
+            Forge<span style={{ color: 'var(--accent-lime)' }}>field</span>
+          </span>
         </div>
         <button className="btn-ghost" style={{ padding: '0.375rem' }} onClick={() => setSidebarOpen(v => !v)}>
           {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
