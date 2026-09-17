@@ -171,14 +171,22 @@ function CreateWorkspace() {
   };
 
   return (
-    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
+    <div style={{
+      display: 'flex',
+      minHeight: '100vh',
+      overflow: 'hidden',
+    }} className="flex-col md:flex-row">
       {/* LEFT PANEL — Controls */}
       <div style={{
-        width: 360, flexShrink: 0, overflowY: 'auto',
+        width: '100%',
+        maxWidth: '380px',
+        flexShrink: 0,
+        overflowY: 'auto',
         borderRight: '1px solid var(--border-subtle)',
         background: 'var(--bg-surface)',
-        display: 'flex', flexDirection: 'column',
-      }}>
+        display: 'flex',
+        flexDirection: 'column',
+      }} className="max-md:max-w-none max-md:border-r-0 max-md:border-b">
         <div style={{ padding: '1.5rem', flex: 1 }}>
           {/* Header */}
           <div style={{ marginBottom: '1.5rem' }}>
