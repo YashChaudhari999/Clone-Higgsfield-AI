@@ -190,7 +190,7 @@ function CreateWorkspace() {
 
           {/* Type selector */}
           <div style={{ marginBottom: '1.25rem' }}>
-            <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600, display: 'block', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+            <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 700, display: 'block', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
               Creation Type
             </label>
             <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -200,12 +200,12 @@ function CreateWorkspace() {
                   onClick={() => setType(t)}
                   style={{
                     flex: 1, padding: '0.625rem', borderRadius: 8,
-                    border: `1px solid ${type === t ? 'var(--accent)' : 'var(--border-default)'}`,
-                    background: type === t ? 'var(--accent-dim)' : 'var(--bg-elevated)',
-                    color: type === t ? 'var(--accent)' : 'var(--text-secondary)',
+                    border: `1px solid ${type === t ? 'var(--accent-lime)' : 'var(--border-default)'}`,
+                    background: type === t ? 'var(--accent-lime-dim)' : 'var(--bg-elevated)',
+                    color: type === t ? 'var(--accent-lime)' : 'var(--text-secondary)',
                     cursor: 'pointer', display: 'flex', alignItems: 'center',
                     justifyContent: 'center', gap: '0.5rem',
-                    fontSize: '0.875rem', fontWeight: 600, transition: 'all 0.15s',
+                    fontSize: '0.875rem', fontWeight: 700, transition: 'all 0.15s',
                   }}
                 >
                   {t === 'video' ? <Film size={15} /> : <ImageIcon size={15} />}
@@ -217,7 +217,7 @@ function CreateWorkspace() {
 
           {/* Model selector */}
           <div style={{ marginBottom: '1.25rem' }}>
-            <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600, display: 'block', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+            <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 700, display: 'block', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
               Model
             </label>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
@@ -227,23 +227,24 @@ function CreateWorkspace() {
                   onClick={() => setModelId(m.id)}
                   style={{
                     padding: '0.75rem', borderRadius: 8, textAlign: 'left',
-                    border: `1px solid ${modelId === m.id ? 'var(--accent)' : 'var(--border-subtle)'}`,
-                    background: modelId === m.id ? 'var(--accent-dim)' : 'var(--bg-elevated)',
+                    border: `1px solid ${modelId === m.id ? 'var(--accent-lime)' : 'var(--border-subtle)'}`,
+                    background: modelId === m.id ? 'var(--accent-lime-dim)' : 'var(--bg-elevated)',
                     cursor: 'pointer', transition: 'all 0.15s',
                     display: 'flex', alignItems: 'center', gap: '0.75rem',
                   }}
                 >
                   <div style={{
                     width: 8, height: 8, borderRadius: '50%', flexShrink: 0,
-                    background: modelId === m.id ? 'var(--accent)' : 'var(--border-strong)',
+                    background: modelId === m.id ? 'var(--accent-lime)' : 'var(--border-strong)',
+                    boxShadow: modelId === m.id ? '0 0 8px var(--accent-lime)' : 'none',
                   }} />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <span style={{ fontSize: '0.8rem', fontWeight: 600, color: modelId === m.id ? 'var(--accent)' : 'var(--text-primary)' }}>
+                      <span style={{ fontSize: '0.8rem', fontWeight: 700, color: modelId === m.id ? 'var(--accent-lime)' : 'var(--text-primary)' }}>
                         {m.name}
                       </span>
                       {m.badge && (
-                        <span className={`badge ${m.badge === 'Flagship' ? 'badge-accent' : 'badge-muted'}`} style={{ fontSize: '0.6rem' }}>
+                        <span className="nav-lime-pill" style={{ fontSize: '0.6rem' }}>
                           {m.badge}
                         </span>
                       )}
@@ -259,7 +260,7 @@ function CreateWorkspace() {
 
           {/* Aspect ratio */}
           <div style={{ marginBottom: '1.25rem' }}>
-            <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600, display: 'block', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+            <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 700, display: 'block', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
               Aspect Ratio
             </label>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem' }}>
@@ -269,10 +270,10 @@ function CreateWorkspace() {
                   onClick={() => setAspectRatio(ar)}
                   style={{
                     padding: '0.375rem 0.75rem', borderRadius: 6,
-                    border: `1px solid ${aspectRatio === ar ? 'var(--accent)' : 'var(--border-default)'}`,
-                    background: aspectRatio === ar ? 'var(--accent-dim)' : 'var(--bg-elevated)',
-                    color: aspectRatio === ar ? 'var(--accent)' : 'var(--text-secondary)',
-                    cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, transition: 'all 0.15s',
+                    border: `1px solid ${aspectRatio === ar ? 'var(--accent-lime)' : 'var(--border-default)'}`,
+                    background: aspectRatio === ar ? 'var(--accent-lime-dim)' : 'var(--bg-elevated)',
+                    color: aspectRatio === ar ? 'var(--accent-lime)' : 'var(--text-secondary)',
+                    cursor: 'pointer', fontSize: '0.8rem', fontWeight: 700, transition: 'all 0.15s',
                   }}
                 >
                   {ar}
@@ -284,7 +285,7 @@ function CreateWorkspace() {
           {/* Duration — video only */}
           {type === 'video' && (
             <div style={{ marginBottom: '1.25rem' }}>
-              <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600, display: 'block', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 700, display: 'block', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                 Duration
               </label>
               <div style={{ display: 'flex', gap: '0.375rem' }}>
@@ -294,10 +295,10 @@ function CreateWorkspace() {
                     onClick={() => setDuration(d)}
                     style={{
                       flex: 1, padding: '0.5rem', borderRadius: 6,
-                      border: `1px solid ${duration === d ? 'var(--accent)' : 'var(--border-default)'}`,
-                      background: duration === d ? 'var(--accent-dim)' : 'var(--bg-elevated)',
-                      color: duration === d ? 'var(--accent)' : 'var(--text-secondary)',
-                      cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, transition: 'all 0.15s',
+                      border: `1px solid ${duration === d ? 'var(--accent-lime)' : 'var(--border-default)'}`,
+                      background: duration === d ? 'var(--accent-lime-dim)' : 'var(--bg-elevated)',
+                      color: duration === d ? 'var(--accent-lime)' : 'var(--text-secondary)',
+                      cursor: 'pointer', fontSize: '0.8rem', fontWeight: 700, transition: 'all 0.15s',
                     }}
                   >
                     {d}
@@ -336,10 +337,10 @@ function CreateWorkspace() {
           {/* Prompt input */}
           <div style={{ marginBottom: '1rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-              <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                 Prompt
               </label>
-              <button onClick={randomPrompt} className="btn-ghost" style={{ fontSize: '0.7rem', padding: '0.25rem 0.5rem', gap: '0.25rem' }}>
+              <button onClick={randomPrompt} className="btn-ghost" style={{ fontSize: '0.7rem', padding: '0.25rem 0.5rem', gap: '0.25rem', color: 'var(--accent-lime)' }}>
                 <RefreshCw size={11} /> Random
               </button>
             </div>
@@ -374,7 +375,7 @@ function CreateWorkspace() {
           {/* Generate button */}
           <button
             id="generate-btn"
-            className="btn-primary"
+            className="btn-lime"
             onClick={handleGenerate}
             disabled={status === 'generating'}
             style={{ width: '100%', justifyContent: 'center', padding: '0.875rem', fontSize: '0.9375rem' }}

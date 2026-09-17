@@ -57,19 +57,22 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       padding: '1.25rem 0.75rem',
     }}>
       {/* Logo */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0 0.5rem', marginBottom: '1.75rem' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', padding: '0 0.5rem', marginBottom: '1.75rem' }}>
         <div style={{
-          width: 28, height: 28, background: 'var(--accent)', borderRadius: 6,
+          width: 28, height: 28, background: 'var(--accent-lime)', borderRadius: 6,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: '0 0 12px rgba(200, 255, 0, 0.4)',
         }}>
-          <Zap size={15} color="#fff" fill="#fff" />
+          <Zap size={15} color="#000000" fill="#000000" />
         </div>
-        <span style={{ fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: '1.125rem' }}>Forge</span>
+        <span style={{ fontFamily: 'Space Grotesk', fontWeight: 800, fontSize: '1.15rem', color: '#ffffff' }}>
+          Forge<span style={{ color: 'var(--accent-lime)' }}>field</span>
+        </span>
       </div>
 
       {/* New creation CTA */}
       <Link href="/dashboard/create" style={{ textDecoration: 'none', marginBottom: '1.25rem' }}>
-        <button className="btn-primary" style={{ width: '100%', justifyContent: 'center', gap: '0.5rem' }}>
+        <button className="btn-lime" style={{ width: '100%', justifyContent: 'center', gap: '0.5rem', padding: '0.625rem' }}>
           <PlusSquare size={16} /> New Creation
         </button>
       </Link>
@@ -99,12 +102,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
             <CreditCard size={13} /> Credits
           </span>
-          <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--accent-lime)' }}>
             {user.creditsTotal - user.creditsUsed} / {user.creditsTotal}
           </span>
         </div>
         <div style={{ height: 4, background: 'var(--bg-base)', borderRadius: 2, overflow: 'hidden' }}>
-          <div style={{ height: '100%', width: `${creditPct}%`, background: 'var(--accent)', borderRadius: 2, transition: 'width 0.5s' }} />
+          <div style={{ height: '100%', width: `${creditPct}%`, background: 'var(--accent-lime)', borderRadius: 2, transition: 'width 0.5s' }} />
         </div>
         <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.375rem' }}>
           {user.plan === 'pro' ? 'Pro Plan' : 'Free Plan'} · Resets monthly
@@ -119,9 +122,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       }}>
         <div style={{
           width: 32, height: 32, borderRadius: '50%',
-          background: 'linear-gradient(135deg, var(--accent), #ff9a70)',
+          background: 'var(--accent-lime)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          flexShrink: 0, fontSize: '0.875rem', fontWeight: 700, color: '#fff',
+          flexShrink: 0, fontSize: '0.875rem', fontWeight: 800, color: '#000000',
         }}>
           {user.name.charAt(0).toUpperCase()}
         </div>

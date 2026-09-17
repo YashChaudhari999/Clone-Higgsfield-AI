@@ -63,18 +63,19 @@ function AuthForm() {
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
           <div style={{
-            width: 44, height: 44, background: 'var(--accent)',
+            width: 44, height: 44, background: 'var(--accent-lime)',
             borderRadius: 10, display: 'inline-flex',
             alignItems: 'center', justifyContent: 'center', marginBottom: '1rem',
+            boxShadow: '0 0 20px rgba(200, 255, 0, 0.4)',
           }}>
-            <Zap size={22} color="#fff" fill="#fff" />
+            <Zap size={22} color="#000000" fill="#000000" />
           </div>
-          <h1 style={{ fontFamily: 'Space Grotesk', fontSize: '1.5rem', fontWeight: 700 }}>
-            {mode === 'signin' ? 'Welcome back' : 'Create your account'}
+          <h1 className="heading-display" style={{ fontSize: '1.75rem', color: '#ffffff' }}>
+            {mode === 'signin' ? 'WELCOME TO FORGEFIELD' : 'CREATE YOUR ACCOUNT'}
           </h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', marginTop: '0.375rem' }}>
             {mode === 'signin'
-              ? 'Sign in to continue to Forge Studio'
+              ? 'Sign in to access your AI creative studio'
               : 'Start creating AI visuals in seconds'}
           </p>
         </div>
@@ -171,12 +172,12 @@ function AuthForm() {
             <button
               id="submit-auth-btn"
               type="submit"
-              className="btn-primary"
+              className="btn-lime"
               disabled={loading}
               style={{ width: '100%', justifyContent: 'center', padding: '0.75rem', marginTop: '0.25rem' }}
             >
               {loading ? (
-                <span style={{ display: 'inline-block', width: 18, height: 18, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%' }} className="animate-spin-slow" />
+                <span style={{ display: 'inline-block', width: 18, height: 18, border: '2px solid rgba(0,0,0,0.3)', borderTopColor: '#000', borderRadius: '50%' }} className="animate-spin-slow" />
               ) : (
                 <>
                   {mode === 'signin' ? 'Sign in' : 'Create account'} <ArrowRight size={16} />
@@ -190,7 +191,7 @@ function AuthForm() {
               {mode === 'signin' ? "Don't have an account? " : 'Already have an account? '}
               <button
                 onClick={() => { setMode(mode === 'signin' ? 'signup' : 'signin'); setError(''); }}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--accent)', fontWeight: 600, fontSize: '0.875rem' }}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--accent-lime)', fontWeight: 700, fontSize: '0.875rem' }}
               >
                 {mode === 'signin' ? 'Sign up free' : 'Sign in'}
               </button>
