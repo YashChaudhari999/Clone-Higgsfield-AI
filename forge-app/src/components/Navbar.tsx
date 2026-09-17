@@ -25,7 +25,7 @@ export default function Navbar({ onOpenAuth, onOpenGenerateModal }: NavbarProps)
     { label: 'Genjutsu', href: '#genjutsu' },
     { label: 'Effects', href: '#effects' },
     { label: 'Cinema Studio', href: '#seedance' },
-    { label: 'Pricing', href: '#pricing', discountBadge: 'Save 40%' },
+    { label: 'Pricing', href: '#pricing', discountBadge: '30% OFF' },
     { label: 'Enterprise', href: '#supercomputer' },
   ];
 

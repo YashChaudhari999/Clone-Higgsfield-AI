@@ -10,6 +10,7 @@ import SeedanceSection from '@/components/SeedanceSection';
 import CommunitySection from '@/components/CommunitySection';
 import SupercomputerSection from '@/components/SupercomputerSection';
 import GptImageSection from '@/components/GptImageSection';
+import PricingSection from '@/components/PricingSection';
 import FeaturePills from '@/components/FeaturePills';
 import Footer from '@/components/Footer';
 import ProjectModal from '@/components/ProjectModal';
@@ -146,6 +147,9 @@ export default function ExploreLandingPage() {
 
       {/* 9. GPT IMAGE SECTION */}
       <GptImageSection />
+
+      {/* PRICING SECTION */}
+      <PricingSection />
 
       {/* 10. MORE AI FEATURES */}
       <FeaturePills />
