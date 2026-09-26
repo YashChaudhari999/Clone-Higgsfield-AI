@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { getProjects, isSupabaseConfigured } from '@/lib/supabase';
+import { getProjects, isSupabaseConfigured, getHomepageStats, HomepageStats, supabase } from '@/lib/supabase';
 import { Project } from '@/lib/types';
 import {
   Sparkles, PlusSquare, FolderOpen, ArrowRight, Layers,
@@ -40,21 +40,72 @@ import { useAuth } from '@/context/AuthContext';
 export default function HomePage() {
   const { user } = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
+  const [stats, setStats] = useState<HomepageStats>({
+    activeProjects: 0,
+    totalAssets: 0,
+    totalCategories: 0,
+    isConnected: false,
+  });
   const [loading, setLoading] = useState(true);
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
     setIsConnected(isSupabaseConfigured());
     fetchData();
-  }, []);
+
+    // 1. Supabase Postgres Realtime Subscription for live DB changes
+    const sb = supabase;
+    if (sb) {
+      const channel = sb
+        .channel('realtime-homepage-telemetry')
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'projects' },
+          () => {
+            fetchData();
+          }
+        )
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'project_assets' },
+          () => {
+            fetchData();
+          }
+        )
+        .subscribe();
+
+      const handleLocalUpdate = () => fetchData();
+      window.addEventListener('forgefield_data_updated', handleLocalUpdate);
+      window.addEventListener('storage', handleLocalUpdate);
+
+      return () => {
+        sb.removeChannel(channel);
+        window.removeEventListener('forgefield_data_updated', handleLocalUpdate);
+        window.removeEventListener('storage', handleLocalUpdate);
+      };
+    } else {
+      const handleLocalUpdate = () => fetchData();
+      window.addEventListener('forgefield_data_updated', handleLocalUpdate);
+      window.addEventListener('storage', handleLocalUpdate);
+
+      return () => {
+        window.removeEventListener('forgefield_data_updated', handleLocalUpdate);
+        window.removeEventListener('storage', handleLocalUpdate);
+      };
+    }
+  }, [user]);
 
   const fetchData = async () => {
     try {
       setLoading(true);
-      const data = await getProjects();
-      setProjects(data);
+      const [projectList, currentStats] = await Promise.all([
+        getProjects(),
+        getHomepageStats(),
+      ]);
+      setProjects(projectList);
+      setStats(currentStats);
     } catch (err) {
-      console.error('Failed to load projects:', err);
+      console.error('Failed to load projects/stats:', err);
     } finally {
       setLoading(false);
     }
@@ -80,7 +131,7 @@ export default function HomePage() {
           <>
             <CheckCircle2 size={14} color="var(--accent-lime)" />
             <span style={{ color: 'var(--accent-lime)', fontWeight: 600 }}>
-              Cloud Backend Connected: Supabase PostgreSQL & Storage Active
+              Cloud Backend Connected: Supabase PostgreSQL & Storage Active (Realtime Subscriptions Enabled)
             </span>
           </>
         ) : (
@@ -173,55 +224,67 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* 4. USEFUL PROJECT STATISTICS BAR */}
+        {/* 4. USEFUL REALTIME PROJECT STATISTICS BAR */}
         <section style={{ maxWidth: 1200, margin: '0 auto 3.5rem', padding: '0 1.5rem' }}>
           <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-            gap: '1rem',
             background: 'var(--bg-surface)',
             border: '1px solid var(--border-subtle)',
             borderRadius: 16,
-            padding: '1.5rem',
+            padding: '1.25rem 1.5rem',
           }}>
-            <div style={{ padding: '0.5rem 1rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-muted)', marginBottom: '0.4rem' }}>
-                <FolderOpen size={16} color="var(--accent-lime)" />
-                <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Active Projects</span>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.65rem' }}>
+              <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                LIVE DATABASE TELEMETRY & STATS
+              </span>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(200,255,0,0.1)', border: '1px solid var(--border-lime)', padding: '0.2rem 0.65rem', borderRadius: 9999, fontSize: '0.65rem', fontWeight: 800, color: 'var(--accent-lime)' }}>
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent-lime)', boxShadow: '0 0 8px var(--accent-lime)' }} className="animate-pulse" /> REALTIME SYNC ACTIVE
               </div>
-              <p style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--accent-lime)', fontFamily: 'Space Grotesk' }}>
-                {projects.length}
-              </p>
             </div>
 
-            <div style={{ padding: '0.5rem 1rem', borderLeft: '1px solid var(--border-subtle)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-muted)', marginBottom: '0.4rem' }}>
-                <Layers size={16} color="var(--accent-lime)" />
-                <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Total Assets Stored</span>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+              gap: '1rem',
+            }}>
+              <div style={{ padding: '0.5rem 1rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-muted)', marginBottom: '0.4rem' }}>
+                  <FolderOpen size={16} color="var(--accent-lime)" />
+                  <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Active Projects</span>
+                </div>
+                <p style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--accent-lime)', fontFamily: 'Space Grotesk', margin: 0 }}>
+                  {stats.activeProjects}
+                </p>
               </div>
-              <p style={{ fontSize: '2rem', fontWeight: 800, color: '#ffffff', fontFamily: 'Space Grotesk' }}>
-                {projects.reduce((acc, p) => acc + (p.project_assets?.length || 0), 0)}
-              </p>
-            </div>
 
-            <div style={{ padding: '0.5rem 1rem', borderLeft: '1px solid var(--border-subtle)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-muted)', marginBottom: '0.4rem' }}>
-                <Compass size={16} color="var(--accent-lime)" />
-                <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Project Categories</span>
+              <div style={{ padding: '0.5rem 1rem', borderLeft: '1px solid var(--border-subtle)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-muted)', marginBottom: '0.4rem' }}>
+                  <Layers size={16} color="var(--accent-lime)" />
+                  <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Total Assets Stored</span>
+                </div>
+                <p style={{ fontSize: '2rem', fontWeight: 800, color: '#ffffff', fontFamily: 'Space Grotesk', margin: 0 }}>
+                  {stats.totalAssets}
+                </p>
               </div>
-              <p style={{ fontSize: '2rem', fontWeight: 800, color: '#ffffff', fontFamily: 'Space Grotesk' }}>
-                {new Set(projects.map(p => p.category)).size || 1}
-              </p>
-            </div>
 
-            <div style={{ padding: '0.5rem 1rem', borderLeft: '1px solid var(--border-subtle)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-muted)', marginBottom: '0.4rem' }}>
-                <Database size={16} color="var(--accent-lime)" />
-                <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Backend Persistence</span>
+              <div style={{ padding: '0.5rem 1rem', borderLeft: '1px solid var(--border-subtle)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-muted)', marginBottom: '0.4rem' }}>
+                  <Compass size={16} color="var(--accent-lime)" />
+                  <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Project Categories</span>
+                </div>
+                <p style={{ fontSize: '2rem', fontWeight: 800, color: '#ffffff', fontFamily: 'Space Grotesk', margin: 0 }}>
+                  {stats.totalCategories}
+                </p>
               </div>
-              <p style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--accent-lime)', fontFamily: 'Space Grotesk', marginTop: '0.4rem' }}>
-                {isConnected ? 'Supabase DB' : 'Local Persistence'}
-              </p>
+
+              <div style={{ padding: '0.5rem 1rem', borderLeft: '1px solid var(--border-subtle)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-muted)', marginBottom: '0.4rem' }}>
+                  <Database size={16} color="var(--accent-lime)" />
+                  <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Backend Persistence</span>
+                </div>
+                <p style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--accent-lime)', fontFamily: 'Space Grotesk', margin: '0.2rem 0 0' }}>
+                  {stats.isConnected ? 'Supabase DB' : 'Local Persistence'}
+                </p>
+              </div>
             </div>
           </div>
         </section>

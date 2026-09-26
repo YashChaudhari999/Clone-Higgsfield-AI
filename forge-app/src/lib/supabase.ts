@@ -636,7 +636,85 @@ export async function deleteProjectAsset(assetId: string, projectId: string): Pr
       proj.project_assets = proj.project_assets.filter(a => a.id !== assetId);
       saveLocalProjects(local);
     }
+    notifyDataUpdated();
     return true;
   }
 }
+
+export function notifyDataUpdated() {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event('forgefield_data_updated'));
+  }
+}
+
+export interface HomepageStats {
+  activeProjects: number;
+  totalAssets: number;
+  totalCategories: number;
+  isConnected: boolean;
+}
+
+/**
+ * Fetch real-time homepage stats directly from Supabase / Database
+ */
+export async function getHomepageStats(): Promise<HomepageStats> {
+  const isConnected = isSupabaseConfigured();
+
+  if (supabase) {
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+      const userId = userData.user?.id;
+
+      let query = supabase.from('projects').select('id, category, status, project_assets(id)');
+      if (userId) {
+        query = query.eq('user_id', userId);
+      }
+
+      const { data: projects, error } = await query;
+
+      if (!error && projects) {
+        const activeProjects = projects.filter((p: any) => p.status === 'active' || !p.status).length;
+        let totalAssets = 0;
+        const categoriesSet = new Set<string>();
+
+        projects.forEach((p: any) => {
+          if (p.category) categoriesSet.add(p.category);
+          if (Array.isArray(p.project_assets)) {
+            totalAssets += p.project_assets.length;
+          }
+        });
+
+        return {
+          activeProjects: activeProjects > 0 ? activeProjects : projects.length,
+          totalAssets,
+          totalCategories: categoriesSet.size > 0 ? categoriesSet.size : (projects.length > 0 ? 1 : 0),
+          isConnected: true,
+        };
+      }
+    } catch (err) {
+      console.warn('Error fetching real-time DB stats:', err);
+    }
+  }
+
+  // Fallback / local storage
+  const localProjects = getLocalProjects();
+  const activeProjects = localProjects.filter(p => p.status === 'active' || !p.status).length;
+  let totalAssets = 0;
+  const categoriesSet = new Set<string>();
+
+  localProjects.forEach(p => {
+    if (p.category) categoriesSet.add(p.category);
+    if (Array.isArray(p.project_assets)) {
+      totalAssets += p.project_assets.length;
+    }
+  });
+
+  return {
+    activeProjects: activeProjects > 0 ? activeProjects : localProjects.length,
+    totalAssets,
+    totalCategories: categoriesSet.size > 0 ? categoriesSet.size : (localProjects.length > 0 ? 1 : 0),
+    isConnected,
+  };
+}
+
 
