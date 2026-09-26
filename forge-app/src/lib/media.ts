@@ -4,6 +4,7 @@ export interface MediaItem {
   id: string;
   title: string;
   subtitle?: string;
+  description?: string;
   category?: string;
   badge?: string;
   image: string;

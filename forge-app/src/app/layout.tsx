@@ -1,13 +1,14 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { AuthProvider } from "@/context/AuthContext";
 
 export const metadata: Metadata = {
-  title: "Forgefield — AI Creative Suite",
-  description: "Create stunning AI-generated videos, motion transfers, and 4K images with sub-second consistency.",
-  keywords: ["AI video generation", "AI image generation", "Genjutsu", "Seedance", "VFX engine", "Forgefield AI"],
+  title: "Forgefield — Creative Project Workspace",
+  description: "Forgefield is a cloud-based creative workspace where creators turn ideas into organized projects, manage creative briefs and assets, and discover visual inspiration.",
+  keywords: ["creative workspace", "project management", "creative briefs", "asset management", "inspiration", "Forgefield"],
   openGraph: {
-    title: "Forgefield — AI Creative Suite",
-    description: "Explore the world's most advanced AI creative engine.",
+    title: "Forgefield — Creative Project Workspace",
+    description: "Organize creative briefs, reference assets, and project direction in one focused workspace.",
     type: "website",
   },
 };
@@ -31,7 +32,9 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body>{children}</body>
+      <body>
+        <AuthProvider>{children}</AuthProvider>
+      </body>
     </html>
   );
 }

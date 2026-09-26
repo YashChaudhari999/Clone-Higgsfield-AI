@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { User, Bell, Shield, CreditCard, Palette, LogOut, Save, CheckCircle, Sparkles, Check, ChevronRight, Zap } from 'lucide-react';
-import { getAuth, setAuth, signOut } from '@/lib/storage';
-import { User as UserType } from '@/lib/types';
+import { User, Bell, Shield, CreditCard, Palette, LogOut, Save, CheckCircle, Sparkles, Check, ChevronRight, Zap, Loader2 } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
+import { updateUserProfile } from '@/lib/supabase';
 
 const TABS = [
   { id: 'profile', label: 'Profile', icon: User, desc: 'Personal details & bio' },
@@ -15,35 +15,50 @@ const TABS = [
 
 export default function SettingsPage() {
   const router = useRouter();
-  const [user, setUser] = useState<UserType | null>(null);
+  const { user, profile, loading: authLoading, signOut } = useAuth();
   const [activeTab, setActiveTab] = useState('profile');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [notifs, setNotifs] = useState({ generations: true, updates: false, marketing: false });
 
   useEffect(() => {
-    const auth = getAuth();
-    if (auth.user) {
-      setUser(auth.user);
-      setName(auth.user.name);
-      setEmail(auth.user.email);
+    if (user) {
+      setName(profile?.display_name || user.user_metadata?.display_name || user.email?.split('@')[0] || '');
+      setEmail(user.email || '');
     }
-  }, []);
+  }, [user, profile]);
 
-  const handleSaveProfile = () => {
+  const handleSaveProfile = async () => {
     if (!user) return;
-    const updated = { ...user, name, email };
-    setUser(updated);
-    setAuth({ isAuthenticated: true, user: updated });
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+    try {
+      setSaving(true);
+      await updateUserProfile(user.id, { display_name: name.trim() });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (err) {
+      console.error('Failed to update profile:', err);
+      alert('Failed to update profile in database.');
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const handleSignOut = () => {
-    signOut();
-    router.push('/');
+  const handleSignOut = async () => {
+    await signOut();
+    router.push('/auth?mode=signin');
   };
+
+  const displayName = profile?.display_name || user?.user_metadata?.display_name || user?.email?.split('@')[0] || 'Creator';
+
+  if (authLoading) {
+    return (
+      <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Loader2 size={24} color="var(--accent-lime)" className="animate-spin-slow" />
+      </div>
+    );
+  }
 
   return (
     <div style={{ padding: 'clamp(1.5rem, 4vw, 3rem) 1.5rem', maxWidth: 1040, margin: '0 auto' }}>
@@ -78,7 +93,7 @@ export default function SettingsPage() {
         </h1>
 
         <p style={{ fontSize: '0.925rem', color: 'var(--text-secondary)', margin: 0, maxWidth: '600px' }}>
-          Manage your personal studio profile, system appearance, generation notifications, and credit subscription plan.
+          Manage your personal studio profile, system appearance, generation notifications, and subscription plan.
         </p>
       </div>
 
@@ -89,7 +104,7 @@ export default function SettingsPage() {
         gap: '2rem',
         alignItems: 'flex-start',
       }}>
-        {/* Sidebar Nav Tabs (4 Cols on Desktop) */}
+        {/* Sidebar Nav Tabs */}
         <div style={{ gridColumn: 'span 12', display: 'flex', flexDirection: 'column', gap: '0.75rem' }} className="lg:grid-col-span-4">
           <div style={{
             background: 'var(--bg-surface)',
@@ -181,7 +196,7 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        {/* Tab Content Panel (8 Cols on Desktop) */}
+        {/* Tab Content Panel */}
         <div style={{ gridColumn: 'span 12' }} className="lg:grid-col-span-8">
           {/* PROFILE TAB */}
           {activeTab === 'profile' && (
@@ -201,10 +216,10 @@ export default function SettingsPage() {
                     STUDIO PROFILE
                   </h2>
                   <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: 0 }}>
-                    Your public creator identity across Forgefield community projects.
+                    Your live creator profile fetched directly from Supabase DB.
                   </p>
                 </div>
-                <span className="badge-glass-lime">PUBLIC PROFILE</span>
+                <span className="badge-glass-lime">SUPABASE DB SYNCED</span>
               </div>
 
               {/* Avatar & Header Identity */}
@@ -232,20 +247,23 @@ export default function SettingsPage() {
                   flexShrink: 0,
                   fontFamily: 'Space Grotesk',
                 }}>
-                  {user?.name?.charAt(0).toUpperCase() || 'F'}
+                  {displayName.charAt(0).toUpperCase()}
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', flex: 1 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
                     <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#ffffff', margin: 0 }}>
-                      {user?.name || 'Creator'}
+                      {displayName}
                     </h3>
                     <span className="badge-lime">
-                      <Zap size={10} /> {user?.plan === 'pro' ? 'PRO STUDIO' : 'FREE TIER'}
+                      <Zap size={10} /> PRO STUDIO
                     </span>
                   </div>
                   <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: 0 }}>
-                    {user?.email || 'creator@forgefield.ai'}
+                    {user?.email}
+                  </p>
+                  <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', margin: 0 }}>
+                    User ID: {user?.id}
                   </p>
                 </div>
               </div>
@@ -262,7 +280,7 @@ export default function SettingsPage() {
                     textTransform: 'uppercase',
                     letterSpacing: '0.04em',
                   }}>
-                    Display Name
+                    Display Name (Supabase DB profiles table)
                   </label>
                   <input
                     className="input-base"
@@ -271,7 +289,7 @@ export default function SettingsPage() {
                     placeholder="Enter creator handle or full name"
                   />
                   <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.35rem', display: 'block' }}>
-                    This name will appear on your published community prompts and studio projects.
+                    This display name is stored in your Supabase DB `profiles` table and metadata.
                   </span>
                 </div>
 
@@ -291,11 +309,11 @@ export default function SettingsPage() {
                     className="input-base"
                     type="email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="name@company.com"
+                    disabled
+                    style={{ opacity: 0.7, cursor: 'not-allowed' }}
                   />
                   <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.35rem', display: 'block' }}>
-                    Used for generation notifications, API authentication keys, and password recovery.
+                    Authenticated Supabase account email address.
                   </span>
                 </div>
               </div>
@@ -305,11 +323,16 @@ export default function SettingsPage() {
                 <button
                   className="btn-lime"
                   onClick={handleSaveProfile}
+                  disabled={saving}
                   style={{ padding: '0.75rem 1.85rem', fontSize: '0.85rem' }}
                 >
-                  {saved ? (
+                  {saving ? (
                     <>
-                      <Check size={16} /> Changes Saved!
+                      <Loader2 size={16} className="animate-spin-slow" /> Saving to Supabase DB...
+                    </>
+                  ) : saved ? (
+                    <>
+                      <Check size={16} /> Profile Saved to DB!
                     </>
                   ) : (
                     <>
@@ -428,9 +451,9 @@ export default function SettingsPage() {
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 {[
-                  { key: 'generations', label: 'Inference & Generation Completion', desc: 'Get notified when 4K video render pipelines finish' },
-                  { key: 'updates', label: 'Model Releases & API Updates', desc: 'Alerts for new Seedance 2.5, Wan, and Kling model drops' },
-                  { key: 'marketing', label: 'Community Highlights & Tips', desc: 'Weekly trending prompts, tutorials, and workflow guides' },
+                  { key: 'generations', label: 'Project & Workspace Updates', desc: 'Alerts when collaborators update shared project briefs' },
+                  { key: 'updates', label: 'Platform & Feature Updates', desc: 'New features, improvements, and workspace tools' },
+                  { key: 'marketing', label: 'Inspiration & Community Highlights', desc: 'Weekly trending projects, creative templates, and workflow guides' },
                 ].map((item) => (
                   <div
                     key={item.key}
@@ -501,70 +524,37 @@ export default function SettingsPage() {
             }}>
               <div style={{ borderBottom: '1px solid var(--border-subtle)', paddingBottom: '1rem' }}>
                 <h2 className="heading-display" style={{ fontSize: '1.35rem', color: '#ffffff', margin: '0 0 0.2rem 0' }}>
-                  SUBSCRIPTION & CREDITS
+                  WORKSPACE ACCOUNT
                 </h2>
                 <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: 0 }}>
-                  Manage credit quotas, billing cycles, and compute tier upgrades.
+                  Manage your Forgefield account and cloud workspace.
                 </p>
               </div>
 
-              {/* Active Plan Card Banner */}
+              {/* Account Info Card */}
               <div style={{
                 padding: '1.75rem',
                 borderRadius: 20,
-                background: 'linear-gradient(135deg, rgba(200,255,0,0.14) 0%, rgba(200,255,0,0.02) 100%)',
-                border: '1px solid var(--border-lime)',
-                boxShadow: '0 0 32px rgba(200, 255, 0, 0.1)',
+                background: 'var(--bg-elevated)',
+                border: '1px solid var(--border-subtle)',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '1.25rem',
+                gap: '1rem',
               }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div>
-                    <span className="badge-lime" style={{ marginBottom: '0.4rem' }}>
-                      <Zap size={10} /> CURRENT ACTIVE TIER
-                    </span>
-                    <h3 className="heading-display" style={{ fontSize: '1.6rem', color: '#ffffff', margin: 0 }}>
-                      PRO STUDIO PLAN
-                    </h3>
-                  </div>
-                  <span className="badge-glass-lime" style={{ fontSize: '0.75rem', padding: '0.35rem 0.85rem' }}>
-                    $49 / MONTH
-                  </span>
+                <div>
+                  <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '0.5rem' }}>Authenticated Account</p>
+                  <p style={{ fontSize: '1rem', fontWeight: 700, color: '#ffffff' }}>{user?.email}</p>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>Powered by Supabase Auth</p>
                 </div>
-
-                {/* Credit Usage Bar */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.825rem' }}>
-                    <span style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>Inference Compute Credits</span>
-                    <span style={{ fontWeight: 800, color: 'var(--accent-lime)' }}>
-                      {(user?.creditsTotal || 200) - (user?.creditsUsed || 0)} / {user?.creditsTotal || 200} CREDITS REMAINING
-                    </span>
-                  </div>
-
-                  <div style={{ height: 8, background: 'rgba(0,0,0,0.5)', borderRadius: 9999, overflow: 'hidden', border: '1px solid var(--border-subtle)' }}>
-                    <div style={{
-                      height: '100%',
-                      width: `${Math.round((1 - (user?.creditsUsed || 0) / (user?.creditsTotal || 200)) * 100)}%`,
-                      background: 'linear-gradient(90deg, var(--accent-lime) 0%, #b8eb00 100%)',
-                      borderRadius: 9999,
-                      boxShadow: '0 0 12px var(--accent-lime)',
-                    }} />
-                  </div>
+                <div style={{ height: 1, background: 'var(--border-subtle)' }} />
+                <div>
+                  <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '0.5rem' }}>Cloud Storage</p>
+                  <p style={{ fontSize: '0.9rem', color: 'var(--accent-lime)', fontWeight: 700 }}>Supabase PostgreSQL + Storage</p>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>Your projects, assets, and notes are stored securely in the cloud.</p>
                 </div>
-
-                <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', margin: 0 }}>
-                  Credit allocation resets on the 1st of every month. Unlimited draft exports enabled.
-                </p>
-              </div>
-
-              {/* Upgrade CTAs */}
-              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-                <button className="btn-lime" style={{ padding: '0.75rem 1.75rem' }}>
-                  <Zap size={16} /> Upgrade to Enterprise Supercomputer
-                </button>
-                <button className="btn-dark" style={{ padding: '0.75rem 1.5rem' }}>
-                  Manage Payment Method
+                <div style={{ height: 1, background: 'var(--border-subtle)' }} />
+                <button className="btn-ghost" onClick={handleSignOut} style={{ alignSelf: 'flex-start', color: 'var(--error)', fontSize: '0.85rem', gap: '0.5rem' }}>
+                  Sign Out of Forgefield
                 </button>
               </div>
             </div>
@@ -574,4 +564,3 @@ export default function SettingsPage() {
     </div>
   );
 }
-

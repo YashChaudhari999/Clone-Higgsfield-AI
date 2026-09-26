@@ -5,10 +5,9 @@ import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import {
   Zap, Home, PlusSquare, FolderOpen, Compass, Settings,
-  LogOut, ChevronDown, Menu, X, CreditCard,
+  LogOut, Menu, X, CreditCard, Loader2
 } from 'lucide-react';
-import { getAuth, signOut } from '@/lib/storage';
-import { User } from '@/lib/types';
+import { useAuth } from '@/context/AuthContext';
 
 const NAV = [
   { label: 'Home', icon: Home, href: '/dashboard' },
@@ -21,32 +20,40 @@ const NAV = [
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [user, setUser] = useState<User | null>(null);
+  const { user, profile, loading: authLoading, signOut } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
-    const auth = getAuth();
-    if (!auth.isAuthenticated || !auth.user) {
-      router.replace('/auth');
-      return;
+    if (!authLoading && !user) {
+      router.replace('/auth?mode=signin');
     }
-    setUser(auth.user);
-  }, [router]);
+  }, [user, authLoading, router]);
 
-  const handleSignOut = () => {
-    signOut();
-    router.push('/');
+  const handleSignOut = async () => {
+    await signOut();
+    router.replace('/auth?mode=signin');
   };
 
-  if (!user) {
+  if (authLoading || !user) {
     return (
-      <div style={{ minHeight: '100vh', background: 'var(--bg-base)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ width: 32, height: 32, border: '2px solid var(--border-default)', borderTopColor: 'var(--accent-lime)', borderRadius: '50%' }} className="animate-spin-slow" />
+      <div style={{ minHeight: '100vh', background: 'var(--bg-base)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}>
+        <div style={{
+          width: 48, height: 48, background: 'var(--accent-lime)', borderRadius: 12,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: '0 0 24px rgba(200, 255, 0, 0.4)',
+        }}>
+          <Zap size={24} color="#000000" fill="#000000" />
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.88rem' }}>
+          <Loader2 size={18} color="var(--accent-lime)" className="animate-spin-slow" />
+          <span>Verifying Studio Authentication...</span>
+        </div>
       </div>
     );
   }
 
-  const creditPct = Math.round((1 - user.creditsUsed / user.creditsTotal) * 100);
+  const displayName = profile?.display_name || user.user_metadata?.display_name || user.email?.split('@')[0] || 'Creator';
+  const userEmail = user.email || '';
 
   const SidebarContent = () => (
     <aside style={{
@@ -55,25 +62,28 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       background: 'var(--bg-surface)',
       borderRight: '1px solid var(--border-subtle)',
       padding: '1.25rem 0.75rem',
+      zIndex: 30,
     }}>
-      {/* Logo */}
+      {/* Brand Logo */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', padding: '0 0.5rem', marginBottom: '1.75rem' }}>
-        <div style={{
-          width: 28, height: 28, background: 'var(--accent-lime)', borderRadius: 6,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: '0 0 12px rgba(200, 255, 0, 0.4)',
-        }}>
-          <Zap size={15} color="#000000" fill="#000000" />
-        </div>
-        <span style={{ fontFamily: 'Space Grotesk', fontWeight: 800, fontSize: '1.15rem', color: '#ffffff' }}>
-          Forge<span style={{ color: 'var(--accent-lime)' }}>field</span>
-        </span>
+        <Link href="/dashboard" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+          <div style={{
+            width: 28, height: 28, background: 'var(--accent-lime)', borderRadius: 6,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 0 12px rgba(200, 255, 0, 0.4)',
+          }}>
+            <Zap size={15} color="#000000" fill="#000000" />
+          </div>
+          <span style={{ fontFamily: 'Space Grotesk', fontWeight: 800, fontSize: '1.15rem', color: '#ffffff' }}>
+            Forge<span style={{ color: 'var(--accent-lime)' }}>field</span>
+          </span>
+        </Link>
       </div>
 
-      {/* New creation CTA */}
+      {/* New Project CTA */}
       <Link href="/dashboard/create" style={{ textDecoration: 'none', marginBottom: '1.25rem' }}>
         <button className="btn-lime" style={{ width: '100%', justifyContent: 'center', gap: '0.5rem', padding: '0.625rem' }}>
-          <PlusSquare size={16} /> New Creation
+          <PlusSquare size={16} /> New Project
         </button>
       </Link>
 
@@ -92,33 +102,28 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         })}
       </nav>
 
-      {/* Credits */}
+      {/* Account Info */}
       <div style={{
         padding: '0.875rem', borderRadius: 10,
         background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)',
         marginBottom: '0.75rem',
       }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
           <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
-            <CreditCard size={13} /> Credits
+            <CreditCard size={13} /> Studio Plan
           </span>
-          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--accent-lime)' }}>
-            {user.creditsTotal - user.creditsUsed} / {user.creditsTotal}
-          </span>
+          <span className="nav-lime-pill" style={{ fontSize: '0.65rem' }}>PRO</span>
         </div>
-        <div style={{ height: 4, background: 'var(--bg-base)', borderRadius: 2, overflow: 'hidden' }}>
-          <div style={{ height: '100%', width: `${creditPct}%`, background: 'var(--accent-lime)', borderRadius: 2, transition: 'width 0.5s' }} />
-        </div>
-        <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.375rem' }}>
-          {user.plan === 'pro' ? 'Pro Plan' : 'Free Plan'} · Resets monthly
+        <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+          Supabase Auth & Storage Connected
         </p>
       </div>
 
-      {/* User */}
+      {/* User Identity & Logout */}
       <div style={{
         display: 'flex', alignItems: 'center', gap: '0.625rem',
         padding: '0.625rem 0.5rem', borderRadius: 8,
-        cursor: 'pointer', position: 'relative',
+        background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-subtle)',
       }}>
         <div style={{
           width: 32, height: 32, borderRadius: '50%',
@@ -126,56 +131,61 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           flexShrink: 0, fontSize: '0.875rem', fontWeight: 800, color: '#000000',
         }}>
-          {user.name.charAt(0).toUpperCase()}
+          {displayName.charAt(0).toUpperCase()}
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <p style={{ fontSize: '0.8rem', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.name}</p>
-          <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.email}</p>
+          <p style={{ fontSize: '0.8rem', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#ffffff' }}>
+            {displayName}
+          </p>
+          <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {userEmail}
+          </p>
         </div>
         <button
           onClick={handleSignOut}
           className="btn-ghost"
-          title="Sign out"
-          style={{ padding: '0.375rem', color: 'var(--text-muted)', flexShrink: 0 }}
+          title="Sign out of Supabase"
+          style={{ padding: '0.375rem', color: 'var(--error)', flexShrink: 0 }}
         >
-          <LogOut size={14} />
+          <LogOut size={15} />
         </button>
       </div>
     </aside>
   );
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg-base)' }}>
-      {/* Desktop sidebar */}
-      <div className="max-md:hidden">
+    <div style={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden', background: 'var(--bg-base)' }}>
+      {/* Desktop Sidebar */}
+      <div className="max-md:hidden" style={{ flexShrink: 0, height: '100vh', position: 'sticky', top: 0 }}>
         <SidebarContent />
       </div>
 
-      {/* Mobile header */}
+      {/* Mobile Header Navigation */}
       <div style={{
         display: 'none',
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 40,
-        height: 56, background: 'rgba(8,8,8,0.9)', backdropFilter: 'blur(12px)',
+        height: 56, background: 'rgba(8,8,8,0.92)', backdropFilter: 'blur(16px)',
         borderBottom: '1px solid var(--border-subtle)',
         alignItems: 'center', justifyContent: 'space-between', padding: '0 1rem',
       }} className="max-md:flex md:hidden" id="mobile-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <div style={{ width: 24, height: 24, background: 'var(--accent-lime)', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Zap size={13} color="#000000" fill="#000000" />
+          <div style={{ width: 26, height: 26, background: 'var(--accent-lime)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Zap size={14} color="#000000" fill="#000000" />
           </div>
           <span style={{ fontFamily: 'Space Grotesk', fontWeight: 800, fontSize: '1rem', color: '#ffffff' }}>
             Forge<span style={{ color: 'var(--accent-lime)' }}>field</span>
           </span>
         </div>
+
         <button className="btn-ghost" style={{ padding: '0.375rem' }} onClick={() => setSidebarOpen(v => !v)}>
-          {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+          {sidebarOpen ? <X size={20} color="var(--accent-lime)" /> : <Menu size={20} />}
         </button>
       </div>
 
-      {/* Mobile sidebar overlay */}
+      {/* Mobile Sidebar Overlay Drawer */}
       {sidebarOpen && (
         <div
-          style={{ position: 'fixed', inset: 0, zIndex: 50, background: 'rgba(0,0,0,0.6)' }}
+          style={{ position: 'fixed', inset: 0, zIndex: 50, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)' }}
           onClick={() => setSidebarOpen(false)}
         >
           <div onClick={e => e.stopPropagation()} style={{ width: 280, height: '100%' }}>
@@ -184,8 +194,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
       )}
 
-      {/* Main content */}
-      <main style={{ flex: 1, minWidth: 0, paddingTop: 0 }} className="md:pt-0 max-md:pt-14">
+      {/* Main Content Area (Independent Scroll) */}
+      <main style={{ flex: 1, minWidth: 0, height: '100vh', overflowY: 'auto' }} className="max-md:pt-14">
         {children}
       </main>
     </div>

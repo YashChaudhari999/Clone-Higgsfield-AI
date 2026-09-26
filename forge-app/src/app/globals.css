@@ -265,6 +265,26 @@ button, input, select, textarea {
   line-height: 1;
 }
 
+.badge-category {
+  background: rgba(255, 255, 255, 0.08);
+  color: #e4e4e7;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 0.2rem 0.6rem;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  display: inline-flex;
+  align-items: center;
+  line-height: 1.2;
+  transition: all 0.2s ease;
+}
+.badge-category:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
 .nav-discount-pill {
   background: rgba(200, 255, 0, 0.15);
   color: var(--accent-lime);

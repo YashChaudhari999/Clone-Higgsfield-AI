@@ -1,177 +1,398 @@
 'use client';
 
-import { useState } from 'react';
-import Navbar from '@/components/Navbar';
-import PromoBanner from '@/components/PromoBanner';
-import FeaturedGrid from '@/components/FeaturedGrid';
-import VisualEffectsSection from '@/components/VisualEffectsSection';
-import GenjutsuSection from '@/components/GenjutsuSection';
-import SeedanceSection from '@/components/SeedanceSection';
-import CommunitySection from '@/components/CommunitySection';
-import SupercomputerSection from '@/components/SupercomputerSection';
-import GptImageSection from '@/components/GptImageSection';
-import PricingSection from '@/components/PricingSection';
-import FeaturePills from '@/components/FeaturePills';
-import Footer from '@/components/Footer';
-import ProjectModal from '@/components/ProjectModal';
-import { MediaItem } from '@/lib/media';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Sparkles, ArrowRight, Play, Wand2 } from 'lucide-react';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
+import { getProjects, isSupabaseConfigured } from '@/lib/supabase';
+import { Project } from '@/lib/types';
+import {
+  Sparkles, PlusSquare, FolderOpen, ArrowRight, Layers,
+  Compass, Database, CheckCircle2, AlertCircle, Wand2, Eye
+} from 'lucide-react';
 
-export default function ExploreLandingPage() {
-  const [activeModalItem, setActiveModalItem] = useState<MediaItem | null>(null);
+const CREATIVE_INSPIRATION = [
+  {
+    title: 'Neon Cyberpunk Film Brief',
+    category: 'Film & Video',
+    description: 'Organize visual references, shot lists, color palettes, and AI prompts for a futuristic narrative.',
+    prompt: 'Neon cyber-city, rain-slicked asphalt, volumetric teal and magenta lighting, anamorphic lens 8k',
+    tag: 'Trending Brief',
+  },
+  {
+    title: 'Architectural Visualization',
+    category: '3D & Environment',
+    description: 'Structure client specifications, spatial layouts, material swatches, and lighting moodboards.',
+    prompt: 'Minimalist brutalist concrete villa built into cliffside, ocean sunset, photorealistic architecture',
+    tag: 'Popular Template',
+  },
+  {
+    title: 'Synthwave Album Creative Direction',
+    category: 'Music & Audio',
+    description: 'Track artwork briefs, music video storyboards, and social promo assets in one unified project.',
+    prompt: 'Retro 80s chrome grid horizon, synthwave sun rising, magenta fog, VHS distortion aesthetic',
+    tag: 'Creative Kit',
+  },
+];
 
-  const handleOpenModal = (item: MediaItem) => {
-    setActiveModalItem(item);
-  };
+import { useAuth } from '@/context/AuthContext';
 
-  const handleCloseModal = () => {
-    setActiveModalItem(null);
+export default function HomePage() {
+  const { user } = useAuth();
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isConnected, setIsConnected] = useState(false);
+
+  useEffect(() => {
+    setIsConnected(isSupabaseConfigured());
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const data = await getProjects();
+      setProjects(data);
+    } catch (err) {
+      console.error('Failed to load projects:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div style={{ background: 'var(--bg-base)', minHeight: '100vh', color: '#ffffff' }}>
-      {/* 2. PROMOTIONAL BANNER (AT TOP) */}
-      <PromoBanner
-        onAction={() => {
-          window.location.href = '/auth?mode=signup';
-        }}
-      />
+    <div style={{ background: 'var(--bg-base)', minHeight: '100vh', color: '#ffffff', display: 'flex', flexDirection: 'column' }}>
+      {/* 1. Sleek Navigation */}
+      <Navbar />
 
-      {/* 1. STICKY TOP NAVIGATION */}
-      <Navbar
-        onOpenGenerateModal={() => {
-          window.location.href = '/dashboard/create';
-        }}
-      />
-
-      {/* HERO STATEMENT BANNER (FIRST VIEWPORT) */}
-      <section style={{
-        position: 'relative',
-        padding: 'clamp(2rem, 4vw, 3.5rem) 1.5rem 1.25rem',
-        textAlign: 'center',
-        maxWidth: 1240,
-        margin: '0 auto',
+      {/* 2. Supabase Backend Connection Banner */}
+      <div style={{
+        background: isConnected ? 'rgba(200, 255, 0, 0.06)' : 'rgba(255, 170, 0, 0.06)',
+        borderBottom: `1px solid ${isConnected ? 'var(--border-lime)' : 'rgba(255, 170, 0, 0.3)'}`,
+        padding: '0.5rem 1.5rem',
+        fontSize: '0.78rem',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '0.5rem',
       }}>
-        {/* Ambient background glow orb */}
-        <div style={{
-          position: 'absolute',
-          top: '15%',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: '550px',
-          height: '550px',
-          background: 'radial-gradient(circle, rgba(200, 255, 0, 0.12) 0%, transparent 70%)',
-          pointerEvents: 'none',
-        }} />
-
-        {/* Micro Category Pill */}
-        <div style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '0.45rem',
-          background: 'rgba(200, 255, 0, 0.12)',
-          border: '1px solid var(--border-lime)',
-          padding: '0.3rem 0.8rem',
-          borderRadius: 9999,
-          marginBottom: '1.1rem',
-          boxShadow: '0 0 16px rgba(200, 255, 0, 0.15)',
-        }}>
-          <Sparkles size={13} color="var(--accent-lime)" />
-          <span style={{ fontSize: '0.72rem', color: 'var(--accent-lime)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            AI-NATIVE CREATIVE ENGINE
-          </span>
-        </div>
-
-        {/* Scaled H1 Headline */}
-        <h1 className="heading-display" style={{
-          fontSize: 'clamp(2.4rem, 5.2vw, 4.2rem)',
-          lineHeight: 1.04,
-          color: '#ffffff',
-          marginBottom: '1rem',
-          letterSpacing: '-0.02em',
-          maxWidth: '1080px',
-          margin: '0 auto 1rem',
-        }}>
-          EXPLORE THE WORLD&apos;S MOST ADVANCED <span style={{ color: 'var(--accent-lime)', textShadow: '0 0 24px rgba(200,255,0,0.35)' }}>AI CREATIVE ENGINE</span>
-        </h1>
-
-        {/* Punchy Subtitle Paragraph */}
-        <p style={{
-          fontSize: 'clamp(0.95rem, 1.6vw, 1.15rem)',
-          color: 'var(--text-secondary)',
-          maxWidth: '680px',
-          margin: '0 auto 1.75rem',
-          lineHeight: 1.55,
-          fontWeight: 400,
-        }}>
-          AI-native creative platform for generating and exploring cinema-grade video, motion transfer, and 4K visual content.
-        </p>
-
-        {/* Hero CTAs */}
-        <div style={{ display: 'flex', gap: '0.875rem', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
-          <Link href="/dashboard/create" style={{ textDecoration: 'none' }}>
-            <button className="btn-lime" style={{ padding: '0.75rem 1.85rem', fontSize: '0.88rem' }}>
-              <Wand2 size={16} /> Open Studio Free
-            </button>
-          </Link>
-          <a href="#genjutsu" style={{ textDecoration: 'none' }}>
-            <button className="btn-dark" style={{ padding: '0.75rem 1.6rem', fontSize: '0.88rem' }}>
-              <Play size={15} fill="currentColor" /> Watch Demos
-            </button>
-          </a>
-        </div>
-      </section>
-
-      {/* 3. FEATURED CREATIVE / PRODUCT CARDS (PEEKS INTO FIRST VIEWPORT) */}
-      <div style={{ marginTop: '-0.5rem' }}>
-        <FeaturedGrid onCardClick={handleOpenModal} />
+        {isConnected ? (
+          <>
+            <CheckCircle2 size={14} color="var(--accent-lime)" />
+            <span style={{ color: 'var(--accent-lime)', fontWeight: 600 }}>
+              Cloud Backend Connected: Supabase PostgreSQL & Storage Active
+            </span>
+          </>
+        ) : (
+          <>
+            <AlertCircle size={14} color="#ffaa00" />
+            <span style={{ color: '#ffaa00', fontWeight: 600 }}>
+              Database Ready — To connect your Supabase Cloud Database, set NEXT_PUBLIC_SUPABASE_URL & NEXT_PUBLIC_SUPABASE_ANON_KEY in environment.
+            </span>
+          </>
+        )}
       </div>
 
-      {/* 4. VISUAL EFFECTS SECTION */}
-      <VisualEffectsSection onRecreate={handleOpenModal} />
+      <main style={{ flex: 1 }}>
+        {/* 3. HERO SECTION */}
+        <section style={{
+          position: 'relative',
+          padding: 'clamp(3rem, 6vw, 5rem) 1.5rem clamp(2rem, 4vw, 3.5rem)',
+          textAlign: 'center',
+          maxWidth: 1200,
+          margin: '0 auto',
+        }}>
+          {/* Ambient Glow Orbs */}
+          <div style={{
+            position: 'absolute',
+            top: '20%',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: '600px',
+            height: '400px',
+            background: 'radial-gradient(circle, rgba(200, 255, 0, 0.12) 0%, transparent 70%)',
+            pointerEvents: 'none',
+            filter: 'blur(40px)',
+          }} />
 
-      {/* 5. GENJUTSU FEATURE SECTION */}
-      <GenjutsuSection
-        onStartGenerate={() => {
-          window.location.href = '/dashboard/create';
-        }}
-        onLearnMore={() => {
-          const el = document.getElementById('effects');
-          if (el) el.scrollIntoView({ behavior: 'smooth' });
-        }}
-      />
+          {/* Micro Category Pill */}
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            background: 'rgba(200, 255, 0, 0.1)',
+            border: '1px solid var(--border-lime)',
+            padding: '0.35rem 0.9rem',
+            borderRadius: 9999,
+            marginBottom: '1.5rem',
+            boxShadow: '0 0 20px rgba(200, 255, 0, 0.15)',
+          }}>
+            <Sparkles size={14} color="var(--accent-lime)" />
+            <span style={{ fontSize: '0.75rem', color: 'var(--accent-lime)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              CLOUD CREATIVE WORKSPACE
+            </span>
+          </div>
 
-      {/* 6. SEEDANCE SECTION */}
-      <SeedanceSection onCardClick={handleOpenModal} />
+          {/* Hero H1 Headline */}
+          <h1 className="heading-display" style={{
+            fontSize: 'clamp(2.5rem, 5.5vw, 4.2rem)',
+            lineHeight: 1.05,
+            color: '#ffffff',
+            marginBottom: '1.25rem',
+            letterSpacing: '-0.02em',
+            maxWidth: '960px',
+            margin: '0 auto 1.25rem',
+          }}>
+            FORGEFIELD HELPS CREATORS TURN IDEAS INTO <span style={{ color: 'var(--accent-lime)', textShadow: '0 0 30px rgba(200,255,0,0.35)' }}>ORGANIZED CREATIVE PROJECTS</span>
+          </h1>
 
-      {/* 7. COMMUNITY / PROJECT GALLERY */}
-      <CommunitySection onProjectClick={handleOpenModal} />
+          {/* Subtitle */}
+          <p style={{
+            fontSize: 'clamp(1rem, 1.8vw, 1.2rem)',
+            color: 'var(--text-secondary)',
+            maxWidth: '720px',
+            margin: '0 auto 2rem',
+            lineHeight: 1.6,
+            fontWeight: 400,
+          }}>
+            Organize creative briefs, reference assets, and visual direction in a focused, high-performance studio workspace.
+          </p>
 
-      {/* 8. SUPERCOMPUTER PROMOTIONAL SECTION */}
-      <SupercomputerSection
-        onTrySupercomputer={() => {
-          window.location.href = '/dashboard/create';
-        }}
-      />
+          {/* Hero Action Buttons */}
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
+            <Link href="/dashboard/create" style={{ textDecoration: 'none' }}>
+              <button className="btn-lime" style={{ padding: '0.85rem 2.2rem', fontSize: '0.95rem' }}>
+                <PlusSquare size={18} /> Create Project <ArrowRight size={16} />
+              </button>
+            </Link>
+            <Link href="/dashboard/projects" style={{ textDecoration: 'none' }}>
+              <button className="btn-dark" style={{ padding: '0.85rem 1.8rem', fontSize: '0.95rem' }}>
+                <FolderOpen size={18} /> View Projects ({projects.length})
+              </button>
+            </Link>
+          </div>
+        </section>
 
-      {/* 9. GPT IMAGE SECTION */}
-      <GptImageSection onCardClick={handleOpenModal} />
+        {/* 4. USEFUL PROJECT STATISTICS BAR */}
+        <section style={{ maxWidth: 1200, margin: '0 auto 3.5rem', padding: '0 1.5rem' }}>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+            gap: '1rem',
+            background: 'var(--bg-surface)',
+            border: '1px solid var(--border-subtle)',
+            borderRadius: 16,
+            padding: '1.5rem',
+          }}>
+            <div style={{ padding: '0.5rem 1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-muted)', marginBottom: '0.4rem' }}>
+                <FolderOpen size={16} color="var(--accent-lime)" />
+                <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Active Projects</span>
+              </div>
+              <p style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--accent-lime)', fontFamily: 'Space Grotesk' }}>
+                {projects.length}
+              </p>
+            </div>
 
-      {/* PRICING SECTION */}
-      <PricingSection />
+            <div style={{ padding: '0.5rem 1rem', borderLeft: '1px solid var(--border-subtle)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-muted)', marginBottom: '0.4rem' }}>
+                <Layers size={16} color="var(--accent-lime)" />
+                <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Total Assets Stored</span>
+              </div>
+              <p style={{ fontSize: '2rem', fontWeight: 800, color: '#ffffff', fontFamily: 'Space Grotesk' }}>
+                {projects.reduce((acc, p) => acc + (p.project_assets?.length || 0), 0)}
+              </p>
+            </div>
 
-      {/* 10. MORE AI FEATURES */}
-      <FeaturePills />
+            <div style={{ padding: '0.5rem 1rem', borderLeft: '1px solid var(--border-subtle)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-muted)', marginBottom: '0.4rem' }}>
+                <Compass size={16} color="var(--accent-lime)" />
+                <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Project Categories</span>
+              </div>
+              <p style={{ fontSize: '2rem', fontWeight: 800, color: '#ffffff', fontFamily: 'Space Grotesk' }}>
+                {new Set(projects.map(p => p.category)).size || 1}
+              </p>
+            </div>
 
-      {/* 11. LARGE LIME FOOTER */}
+            <div style={{ padding: '0.5rem 1rem', borderLeft: '1px solid var(--border-subtle)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-muted)', marginBottom: '0.4rem' }}>
+                <Database size={16} color="var(--accent-lime)" />
+                <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Backend Persistence</span>
+              </div>
+              <p style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--accent-lime)', fontFamily: 'Space Grotesk', marginTop: '0.4rem' }}>
+                {isConnected ? 'Supabase DB' : 'Local Persistence'}
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* 5. RECENT PROJECTS SECTION */}
+        <section style={{ maxWidth: 1200, margin: '0 auto 4rem', padding: '0 1.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
+            <div>
+              <h2 className="heading-display" style={{ fontSize: '1.5rem', color: '#ffffff', marginBottom: '0.25rem' }}>
+                RECENT CREATIVE PROJECTS
+              </h2>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
+                Your organized project briefs and reference assets
+              </p>
+            </div>
+            <Link href="/dashboard/projects" style={{ textDecoration: 'none' }}>
+              <button className="btn-ghost" style={{ color: 'var(--accent-lime)', fontSize: '0.85rem' }}>
+                View All Projects <ArrowRight size={14} />
+              </button>
+            </Link>
+          </div>
+
+          {loading ? (
+            <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+              Loading projects from database...
+            </div>
+          ) : projects.length === 0 ? (
+            <div style={{
+              padding: '3.5rem 2rem',
+              textAlign: 'center',
+              background: 'var(--bg-surface)',
+              border: '1px dashed var(--border-default)',
+              borderRadius: 16,
+            }}>
+              <FolderOpen size={40} color="var(--accent-lime)" style={{ marginBottom: '1rem' }} />
+              <h3 style={{ fontSize: '1.15rem', fontWeight: 700, marginBottom: '0.5rem' }}>No projects created yet</h3>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', maxWidth: 460, margin: '0 auto 1.5rem' }}>
+                Start by creating your first organized project brief with creative direction, category, and reference files.
+              </p>
+              <Link href="/dashboard/create">
+                <button className="btn-lime">
+                  <PlusSquare size={16} /> Create First Project
+                </button>
+              </Link>
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.25rem' }}>
+              {projects.slice(0, 6).map((proj) => (
+                <div key={proj.id} className="card-hover" style={{
+                  background: 'var(--bg-surface)',
+                  border: '1px solid var(--border-subtle)',
+                  borderRadius: 14,
+                  padding: '1.25rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  gap: '1rem',
+                }}>
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                      <span className="nav-lime-pill" style={{ textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                        {proj.category}
+                      </span>
+                      <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                        {new Date(proj.created_at).toLocaleDateString()}
+                      </span>
+                    </div>
+
+                    <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.5rem' }}>
+                      {proj.name}
+                    </h3>
+                    <p style={{
+                      color: 'var(--text-secondary)',
+                      fontSize: '0.85rem',
+                      lineHeight: 1.5,
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden',
+                    }}>
+                      {proj.description || 'No description provided.'}
+                    </p>
+                  </div>
+
+                  {proj.cover_image_url && (
+                    <div style={{ width: '100%', height: 140, borderRadius: 8, overflow: 'hidden', border: '1px solid var(--border-subtle)' }}>
+                      <img src={proj.cover_image_url} alt={proj.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    </div>
+                  )}
+
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '0.5rem', borderTop: '1px solid var(--border-subtle)' }}>
+                    <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                      {proj.project_assets?.length || 0} Assets Stored
+                    </span>
+                    <Link href={`/dashboard/projects/${proj.id}`} style={{ textDecoration: 'none' }}>
+                      <button className="btn-ghost" style={{ fontSize: '0.8rem', color: 'var(--accent-lime)', padding: '0.3rem 0.6rem' }}>
+                        <Eye size={14} /> Open Project
+                      </button>
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* 6. CREATIVE INSPIRATION & BRIEF TEMPLATES */}
+        <section style={{ maxWidth: 1200, margin: '0 auto 5rem', padding: '0 1.5rem' }}>
+          <div style={{ marginBottom: '1.75rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+              <Wand2 size={18} color="var(--accent-lime)" />
+              <h2 className="heading-display" style={{ fontSize: '1.5rem', color: '#ffffff' }}>
+                CREATIVE BRIEF INSPIRATION
+              </h2>
+            </div>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
+              Launch projects directly with curated creative direction templates
+            </p>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem' }}>
+            {CREATIVE_INSPIRATION.map((item, idx) => (
+              <div key={idx} style={{
+                background: 'var(--bg-elevated)',
+                border: '1px solid var(--border-default)',
+                borderRadius: 14,
+                padding: '1.5rem',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+              }} className="card-hover">
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                    <span style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--accent-lime)', textTransform: 'uppercase' }}>
+                      {item.category}
+                    </span>
+                    <span className="nav-free-pill">{item.tag}</span>
+                  </div>
+                  <h3 style={{ fontSize: '1.15rem', fontWeight: 700, marginBottom: '0.5rem', color: '#ffffff' }}>
+                    {item.title}
+                  </h3>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1rem', lineHeight: 1.5 }}>
+                    {item.description}
+                  </p>
+                  <div style={{
+                    background: 'rgba(0,0,0,0.4)',
+                    border: '1px solid var(--border-subtle)',
+                    borderRadius: 8,
+                    padding: '0.75rem',
+                    fontSize: '0.78rem',
+                    color: 'var(--text-muted)',
+                    fontFamily: 'monospace',
+                    marginBottom: '1.25rem',
+                  }}>
+                    &quot;{item.prompt}&quot;
+                  </div>
+                </div>
+
+                <Link href={`/dashboard/create?name=${encodeURIComponent(item.title)}&category=${encodeURIComponent(item.category)}&description=${encodeURIComponent(item.description)}`} style={{ textDecoration: 'none' }}>
+                  <button className="btn-lime" style={{ width: '100%', justifyContent: 'center', fontSize: '0.82rem' }}>
+                    Use Template to Create Project <ArrowRight size={14} />
+                  </button>
+                </Link>
+              </div>
+            ))}
+          </div>
+        </section>
+      </main>
+
+      {/* 7. Footer */}
       <Footer />
-
-      {/* PROMPT INSPECTOR MODAL */}
-      <ProjectModal
-        item={activeModalItem}
-        onClose={handleCloseModal}
-      />
     </div>
   );
 }

@@ -1,46 +1,69 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
-import { Compass, TrendingUp, Sparkles, Wand2, Eye, Heart, Film, Image as ImageIcon } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Compass, TrendingUp, Sparkles, Wand2, Eye, Heart, Film, FolderPlus, Loader2 } from 'lucide-react';
 import { MEDIA_DATA, MediaItem } from '@/lib/media';
+import { createProject } from '@/lib/supabase';
 import ProjectModal from '@/components/ProjectModal';
 
 export default function DashboardExplorePage() {
+  const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [activeModalItem, setActiveModalItem] = useState<MediaItem | null>(null);
+  const [creatingId, setCreatingId] = useState<string | null>(null);
 
-  const categories = ['All', 'Visual Effects', 'Seedance 2.5', 'Genjutsu', 'Community'];
+  const categories = ['All', 'Visual Effects', 'Film & Video', 'Architecture', 'Community'];
 
   const allItems: MediaItem[] = [
     ...MEDIA_DATA.communityProjects,
     ...MEDIA_DATA.visualEffects.map(v => ({
       ...v,
       likes: Math.floor(Math.random() * 5000) + 1200,
-      badge: 'VFX EFFECT'
+      badge: 'VFX TEMPLATE'
     }))
   ];
 
   const filteredItems = selectedCategory === 'All'
     ? allItems
     : selectedCategory === 'Visual Effects'
-    ? MEDIA_DATA.visualEffects.map(v => ({ ...v, likes: 2400, badge: 'VFX EFFECT' }))
+    ? MEDIA_DATA.visualEffects.map(v => ({ ...v, likes: 2400, badge: 'VFX TEMPLATE' }))
     : selectedCategory === 'Community'
     ? MEDIA_DATA.communityProjects
-    : allItems.filter(i => i.model?.includes(selectedCategory) || i.category === selectedCategory);
+    : allItems.filter(i => i.category === selectedCategory || i.badge?.toLowerCase().includes(selectedCategory.toLowerCase()));
+
+  const handleQuickUseTemplate = async (item: MediaItem, e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      setCreatingId(item.id);
+      const newProject = await createProject({
+        name: item.title,
+        description: item.prompt ? `Template Prompt: "${item.prompt}"\n\nCreative Direction: ${item.description || item.title}` : (item.description || item.title),
+        category: item.category || 'Visual Effects',
+        status: 'active',
+        cover_image_url: item.image,
+      });
+      router.push(`/dashboard/projects/${newProject.id}`);
+    } catch (err: any) {
+      console.error('Failed to create project from template:', err);
+      alert(err?.message || 'Failed to create project from template.');
+    } finally {
+      setCreatingId(null);
+    }
+  };
 
   return (
     <div style={{ padding: '2rem', maxWidth: 1400, margin: '0 auto' }}>
       {/* Header */}
       <div style={{ marginBottom: '2rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-          <span className="nav-lime-pill">COMMUNITY HUB</span>
+          <span className="nav-lime-pill">CREATIVE TEMPLATES & INSPIRATION HUB</span>
         </div>
         <h1 className="heading-display" style={{ fontSize: '2rem', color: '#ffffff', marginBottom: '0.375rem', display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
-          <Compass size={28} color="var(--accent-lime)" /> EXPLORE CREATIONS
+          <Compass size={28} color="var(--accent-lime)" /> CREATIVE TEMPLATE LIBRARY
         </h1>
         <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-          Inspect prompts, parameters, and models used by top AI creators.
+          Browse curated creative briefs, prompts, and visual references. Click <strong>"Use as Template"</strong> on any item to instantly spawn a new active project in your workspace!
         </p>
       </div>
 
@@ -99,10 +122,10 @@ export default function DashboardExplorePage() {
           </div>
           <div>
             <h3 className="heading-display" style={{ fontSize: '1.15rem', color: '#ffffff', margin: 0 }}>
-              FEATURED CREATION OF THE WEEK
+              FEATURED TEMPLATE OF THE WEEK
             </h3>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '0.2rem 0 0 0' }}>
-              "If You Stop Loving Me, I'll Die" — 12.4k Likes · Seedance 2.5 Pro
+              "If You Stop Loving Me, I'll Die" — Cinematic VFX Creative Brief
             </p>
           </div>
         </div>
@@ -112,7 +135,7 @@ export default function DashboardExplorePage() {
           className="btn-lime"
           style={{ padding: '0.625rem 1.25rem', fontSize: '0.85rem' }}
         >
-          <Wand2 size={15} /> Inspect Prompt
+          <FolderPlus size={15} /> Inspect & Clone Template
         </button>
       </div>
 
@@ -169,7 +192,7 @@ export default function DashboardExplorePage() {
                   padding: '0.2rem 0.55rem',
                   borderRadius: 9999,
                 }}>
-                  {item.badge || 'PUBLIC'}
+                  {item.badge || 'TEMPLATE'}
                 </span>
 
                 {item.likes && (
@@ -192,32 +215,50 @@ export default function DashboardExplorePage() {
               </div>
             </div>
 
-            {/* Bottom Info */}
+            {/* Bottom Info & Action */}
             <div style={{
               padding: '1.25rem',
               display: 'flex',
               flexDirection: 'column',
-              gap: '0.4rem',
+              gap: '0.75rem',
               background: 'var(--bg-surface)',
             }}>
-              <h3 className="heading-display" style={{
-                fontSize: '1.1rem',
-                color: '#ffffff',
-                margin: 0,
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-              }}>
-                {item.title}
-              </h3>
-
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <h3 className="heading-display" style={{
+                  fontSize: '1.1rem',
+                  color: '#ffffff',
+                  margin: '0 0 0.2rem',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                }}>
+                  {item.title}
+                </h3>
                 <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
                   {'creator' in item && item.creator ? item.creator : item.model || 'Forgefield AI'}
                 </span>
-                <span style={{ fontSize: '0.72rem', color: 'var(--accent-lime)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                  <Eye size={12} /> Prompt
-                </span>
+              </div>
+
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <button
+                  type="button"
+                  onClick={(e) => handleQuickUseTemplate(item, e)}
+                  disabled={creatingId === item.id}
+                  className="btn-lime"
+                  style={{ flex: 1, padding: '0.45rem 0.75rem', fontSize: '0.75rem', justifyContent: 'center' }}
+                >
+                  {creatingId === item.id ? <Loader2 size={13} className="animate-spin-slow" /> : <FolderPlus size={13} />}
+                  {creatingId === item.id ? 'Creating...' : 'Use as Template'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveModalItem(item)}
+                  className="btn-dark"
+                  style={{ padding: '0.45rem 0.6rem', fontSize: '0.75rem' }}
+                  title="View Brief Details"
+                >
+                  <Eye size={13} />
+                </button>
               </div>
             </div>
           </div>
@@ -232,3 +273,4 @@ export default function DashboardExplorePage() {
     </div>
   );
 }
+

@@ -1,9 +1,10 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { MediaItem } from '@/lib/media';
-import { X, Copy, Check, Wand2, Sparkles, Play, Share2 } from 'lucide-react';
-import Link from 'next/link';
+import { X, Copy, Check, Wand2, Sparkles, Play, Share2, PlusSquare, Loader2, FolderPlus } from 'lucide-react';
+import { createProject } from '@/lib/supabase';
 
 interface ProjectModalProps {
   item: MediaItem | null;
@@ -11,7 +12,9 @@ interface ProjectModalProps {
 }
 
 export default function ProjectModal({ item, onClose }: ProjectModalProps) {
+  const router = useRouter();
   const [copied, setCopied] = useState(false);
+  const [creating, setCreating] = useState(false);
 
   if (!item) return null;
 
@@ -20,6 +23,26 @@ export default function ProjectModal({ item, onClose }: ProjectModalProps) {
       navigator.clipboard.writeText(item.prompt);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const handleUseAsTemplate = async () => {
+    try {
+      setCreating(true);
+      const newProject = await createProject({
+        name: item.title,
+        description: item.prompt ? `Template Prompt: "${item.prompt}"\n\nCreative Direction: ${item.description || item.title}` : (item.description || item.title),
+        category: item.category || 'Visual Effects',
+        status: 'active',
+        cover_image_url: item.image,
+      });
+      onClose();
+      router.push(`/dashboard/projects/${newProject.id}`);
+    } catch (err: any) {
+      console.error('Failed to create project from template:', err);
+      alert(err?.message || 'Failed to create project from template.');
+    } finally {
+      setCreating(false);
     }
   };
 
@@ -120,7 +143,7 @@ export default function ProjectModal({ item, onClose }: ProjectModalProps) {
         }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-              <span className="nav-lime-pill">{item.badge || 'PROMPT DETAILS'}</span>
+              <span className="nav-lime-pill">{item.badge || 'PROJECT TEMPLATE'}</span>
               {item.creator && <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>by {item.creator}</span>}
             </div>
 
@@ -147,7 +170,7 @@ export default function ProjectModal({ item, onClose }: ProjectModalProps) {
                   fontWeight: 700,
                   textTransform: 'uppercase',
                 }}>
-                  <span>Generation Prompt</span>
+                  <span>Template Brief & Prompt</span>
                   <button
                     onClick={handleCopyPrompt}
                     style={{
@@ -196,16 +219,29 @@ export default function ProjectModal({ item, onClose }: ProjectModalProps) {
             </div>
           </div>
 
-          {/* Action Button */}
-          <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem' }}>
-            <Link href="/dashboard/create" style={{ flex: 1, textDecoration: 'none' }}>
-              <button className="btn-lime" style={{ width: '100%', padding: '0.75rem' }}>
-                <Wand2 size={16} /> Recreate in Studio
-              </button>
-            </Link>
+          {/* Action Buttons */}
+          <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem', flexWrap: 'wrap' }}>
+            <button
+              onClick={handleUseAsTemplate}
+              disabled={creating}
+              className="btn-lime"
+              style={{ flex: 1, padding: '0.75rem 1rem', fontSize: '0.875rem', minWidth: 200 }}
+            >
+              {creating ? <Loader2 size={16} className="animate-spin-slow" /> : <FolderPlus size={16} />}
+              {creating ? 'Creating Project...' : 'Use as Project Template'}
+            </button>
+            <button
+              onClick={handleCopyPrompt}
+              className="btn-dark"
+              style={{ padding: '0.75rem 1rem', fontSize: '0.875rem' }}
+            >
+              {copied ? <Check size={15} color="var(--accent-lime)" /> : <Copy size={15} />}
+              {copied ? 'Copied' : 'Copy Prompt'}
+            </button>
           </div>
         </div>
       </div>
     </div>
   );
 }
+
